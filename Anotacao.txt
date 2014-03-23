@@ -1,0 +1,34 @@
+
+
+
+
+
+
+
+
+Colocar função q atualize o valor dos produtos com base no valor do ouro do dia.
+Essa função sera executada manualmente ou poderá ser agendada pelo adminstrador do site
+
+
+
+
+Limpeza de fotos
+Para limpar as fotos de produtos não utlizadas, deve-se criar uma função que irá varrer a pasta de fotos e ler arquivo por arquivo.
+Verificando se o nome de cada arquivo e buscar na base de dados, se ele encontrar uma referencia valida (em uso) para o foto, ele irá pular para o proximo
+arquivo, quando um arquivo não for referido por nenhum produto será excluido.
+
+
+criar campo "anotações"
+
+
+peso publico se preenchido
+
+
+botão - controle de estoque - mudar nome 
+
+
+tirar tempo da pagina de confirmação do pedido
+
+
+
+alguns produtos precisarão de confirmação para venda (pois não tem na mão no momento).

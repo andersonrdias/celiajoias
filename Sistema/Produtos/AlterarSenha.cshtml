@@ -1,0 +1,66 @@
+﻿@{
+
+if (!WebSecurity.IsAuthenticated)
+{
+   Response.Redirect("~/Default");
+}
+var senhaAtual = "";
+var novaSenha1 = "";
+var novaSenha2 = "";
+if(IsPost)
+{
+    senhaAtual = Request["senhaAtual"];
+    novaSenha1 = Request["novaSenha1"];
+    novaSenha2 = Request["novaSenha2"];
+    // Validação
+    if (senhaAtual.IsEmpty()) {
+    ModelState.AddError("senhaAtual", "A senha atual deve ser informada.");
+    }
+    if (novaSenha1.IsEmpty()) {
+    ModelState.AddError("novaSenha1", "Obrigatória.");
+    }
+    if (novaSenha2.IsEmpty()) {
+    ModelState.AddError("novaSenha2", "Obrigatória.");
+    }
+    if(novaSenha1 != novaSenha2)
+    {
+    ModelState.AddError("novaSenha1", "A senha não confere.");
+    }
+    // tenta mudar a senha
+    if(ModelState.IsValid)
+    {
+        var currentUser = WebSecurity.CurrentUserName;
+        if(WebSecurity.ChangePassword(currentUser, senhaAtual, novaSenha1))
+        {
+            Response.Redirect("~/Default");
+        }
+        else
+        {
+            ModelState.AddFormError("Não foi possível alterar a senha.");
+        }
+    }
+}
+}
+<h1>Alterar Senha</h1>
+@Html.ValidationSummary(true)
+<form action="AlterarSenha2" method="post" class="contasFormulario">
+<p>
+@Html.Label("Senha Atual: ", "senhaAtual")<br />
+@Html.Password("senhaAtual", senhaAtual)
+@Html.ValidationMessage("senhaAtual")
+</p>
+<p>
+@Html.Label("Nova Senha: ", "novaSenha1")<br />
+@Html.Password("novaSenha1", novaSenha1)
+@Html.ValidationMessage("novaSenha1")
+</p>
+<p>
+@Html.Label("Confirmar a Nova Senha: ", "novaSenha2")<br />
+@Html.Password("novaSenha2", novaSenha2)
+@Html.ValidationMessage("novaSenha2")
+</p>
+<p>
+<input type="submit" value="Alterar Senha" />
+</p>
+</form>
+</body>

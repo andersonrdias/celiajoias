@@ -1,0 +1,217 @@
+﻿@{
+
+
+
+
+
+var produtoID = !UrlData[0].IsEmpty() ? UrlData[0] : "0";
+var db = Database.Open("CeliaJoias");
+var sqlSelect = "SELECT * FROM Produtos WHERE CodProduto = @0";
+var produto = db.QuerySingle(sqlSelect, produtoID);
+
+if (produto == null)
+{
+  Response.Redirect("/categoria/");   
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - @produto.Titulo</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célias Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<link rel="stylesheet" type="text/css" href="~/css/jquery.fancybox.css" />
+<!-- CSS Part End-->
+
+
+
+
+</head>
+<body>
+
+
+
+
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+    
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->    
+    
+  	<!--Breadcrumb Start-->
+    <div class="breadcrumb">
+        <a href="~/">Página Inicial</a> » 
+        <a href="~/categoria">@FuncaoProdutos.Categoria_PesqCodigo(produto.Categoria)</a>  »
+         <a href="#">@produto.Titulo</a>  »
+    </div>
+    <!--Breadcrumb End-->
+    
+    <!--Middle Part Start-->
+  	<section id="contentWrapper">
+		<div id="container">
+        	
+            <!--Left Part Start-->
+        	<aside id="column-left">                 
+                <!--Accordian Start-->           
+   
+ @RenderPage("~/Shared/Layout/_CategoriasLateral.cshtml")
+            	<!--Accordian Start-->
+                
+                <!--Featured Product Start-->
+                <div class="box mb0">
+ 
+                </div>
+                <!--Featured Product end-->
+                
+
+            </aside>
+            <!--Left Part End-->
+            
+            <section id="mainContent">
+				<div id="content">
+                
+                   <!--Social Icons Start--> 
+                    <div class="social">
+                        <ul>
+                            <li><a class="ico-fb" onClick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a></li>
+                            <li><a class="ico-twit" onClick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a></li>
+                            <li><a class="ico-google" onClick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a></li>
+                        </ul>
+                    </div>
+                    <!--Social Icons End-->
+                    
+                    <div class="product-info">
+                    	
+                   		<div class="left">
+                            <div class="image"> 
+                                @if(@produto.imagem01 != "")
+                                {<text>
+                                <a href="~/image/produtos/@produto.Imagem01" title="@produto.Titulo" class="cloud-zoom thumbnail" id='zoom1' rel="adjustX: 10, adjustY:-4, tint:'#000000',tintOpacity:0.2, zoomWidth:365, zoomHight: 275, position:'inside', showTitle:false"> 
+                                <img width="300" height="300" src="/image/produtos/@produto.Imagem01" title="Diamond Rings" alt="@produto.Titulo" id="image" /> 
+                                </a> 
+                                </text>                                    
+                                } else
+                                {<text>
+                                <img src="~/image/sem-foto.jpg" title="Sem imagem" alt="imagem" id="image" />
+                                </text>}
+                               
+                                
+                            </div>
+                            
+                            
+                        </div>
+                    
+                        <div class="right">
+                        	<div class="description">
+                            	<h1>@produto.Titulo</h1>
+                                <p>@produto.Descricao </p>
+                                <span>Categoria:</span> 
+                                <a href="#">@FuncaoProdutos.Categoria_PesqCodigo(produto.Categoria)</a><br />
+                                <span>Cód. Ref: </span> @String.Format("{0:00000}", produto.CodProduto)<br />                                
+                                <span>Disponibilidade:</span> Em estoque <br />
+                                <span>   </span>                                 
+                                <div class="fb-share-button" data-href="http://celiajoias.com/produto/@produtoID" data-width="50px"  data-height="5px"  data-type="button"></div> 
+                            </div>
+
+                            <div class="price"><!--Price:-->
+
+                                <div class="price-bg"></br>@String.Format("{0:C}", produto.Preco_Venda) <span class="price-tax">@if(produto.FreteCobrar > 0){<text>Entrega Grátis </text>}</span> </div>
+                                <div class="points"> </div>
+                            </div>
+                            <div class="cart">
+
+
+<form action="/Carrinho" method="post">
+                                
+                                <div class="qty"> Quantidade: <a class="qtyBtn mines" href="javascript:void(0);">&nbsp;</a>
+                                    <input id="qty" type="text" name="quantity" size="2" value="1" />
+                                    <a class="qtyBtn plus" href="javascript:void(0);">&nbsp;</a>
+                                    <input type="hidden" name="produtoid" size="2" value="@produto.CodProduto" />
+                                     <input type="hidden" name="preco" size="2" value="@produto.Preco_Venda" />
+                                     <input type="hidden" name="quantidade" size="2" value="1" />
+
+                                    &nbsp;
+                                    <label class="btn"><input type="submit" value="Comprar" id="button-cart" class="button" /></label>
+                                  
+
+
+                            	</div>
+</form>
+
+
+  
+
+                          
+                            </div>
+ 
+                       <!-----------Facebook-->
+                            
+                                                     
+                        </div>
+                    </div>
+  				</div>
+
+  			</section>
+    	</div>
+    </section>        
+  	<!--Middle Part End-->
+  
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+      	
+</div>
+
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/tabs.js"></script>
+<script type="text/javascript" src="~/js/jquery.dcjqaccordion.2.9.js"></script> 
+<script type="text/javascript" src="~/js/cloud-zoom.1.0.2.js"></script>
+<script type="text/javascript" src="~/js/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+<script type="text/javascript">
+$(window).load(function() {
+$('#camaccordion').dcAccordion({
+		classExpand : 'cid20',
+		menuClose: false,
+		autoClose: true,
+		saveState: false,
+		disableLink: true,		
+		autoExpand: true
+	});
+});
+</script>
+</body>
+</html>

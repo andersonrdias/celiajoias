@@ -1,0 +1,149 @@
+﻿@{
+
+//http://www.macoratti.net/Cursos/webmatrix/wbm_ecm6.htm
+
+var email = "";
+var mensagem = "";
+if(IsPost)
+{
+   email = Request["email"];
+   // Validaçao
+   if (email.IsEmpty()) {
+     ModelState.AddError("email", "O email tem que ser informado.");
+   }
+   // Gera e envia o email para redefinir a senha
+   if(ModelState.IsValid)
+   {
+     if(WebSecurity.UserExists(email))
+     {
+        // Gera o link de confirmação
+        var redefineToken = WebSecurity.GeneratePasswordResetToken(email);
+        var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer,UriFormat.Unescaped);
+        var urlRedefineSenha = hostUrl + "/conta/redefinesenha?redefineToken=" + HttpUtility.UrlEncode(redefineToken);
+        // Envia o email
+        WebMail.Send(to: email, subject: "Célia Jóias - Redefinição de senha para " + email, body: "Por gentileza acesse <a href='" + urlRedefineSenha + "'>" +
+        urlRedefineSenha + "</a> para redefinir a senha de sua conta no site Célia Jóias.");
+        mensagem = "Um email esta sendo enviado para seu endereço de email registrado em nosso site com o link para redefinir sua senha.";
+      }
+      else
+      {
+        mensagem = "Não foi possível localizar sua conta.";
+      }
+   }
+}
+}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Conclusão de Cadastro</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Encerrar Pedido</a>             
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+            <div class="box">
+            	<div class="box-heading">Account</div>
+            	<div class="box-category">
+            		<ul>
+                    	<li><a href="#">My Account</a></li>
+                    	<li><a href="#">Edit Account</a></li>
+              			<li><a href="#">Password</a></li>
+                    	<li><a href="#">Address Books</a></li>
+                        <li><a href="#">Wish List</a></li>
+                        <li><a href="#">Order History</a></li>
+                        <li><a href="#">Downloads</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Transactions</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    	<li><a href="#">Logout</a></li>
+                  	</ul>
+            	</div>
+            </div>
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+<h1>Esqueceu a Senha?</h1>
+ @if (!mensagem.IsEmpty()) {
+   <p>@mensagem</p>
+ }
+ else
+ {
+   <form action="RedefinirSenha" method="post" class="contasFormulario">
+   <p>Informe o seu email registrado em nosso site para receber o link para redefinir sua senha:</p>
+   <p>
+   @Html.Label("Email : ", "email")<br />
+   @Html.TextBox("email", email)
+   @Html.ValidationMessage("email")
+   </p>
+   <p>
+   <label class="btn"><input type="submit" class="button" value="Redefinir Senha"></label>
+   </p>
+   </form>
+}
+
+
+
+ 
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

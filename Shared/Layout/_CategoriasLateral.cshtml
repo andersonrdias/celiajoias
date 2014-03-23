@@ -1,0 +1,28 @@
+﻿@{
+    
+
+var db = Database.Open("CeliaJoias");
+var slqSelect = "SELECT * FROM Categoria where Ativo = 'true' order by Titulo;";
+
+    
+}
+
+
+
+             <div class="box">
+                    <div class="box-heading">Categorias</div>
+                    <div class="box-content">
+                        <div class="box-category">
+                            <ul id="camaccordion">
+                                <li class="cid20 dcjq-parent-li"><a href="~/categoria">Todas<span class="dcjq-icon"></span></a></li>
+
+@foreach (var categoria in db.Query(slqSelect))
+{       
+<li class="cid20 dcjq-parent-li"><a href="~/categoria/@categoria.Apelido"> @categoria.Titulo <span class="dcjq-icon"></span></a></li>    
+}
+
+
+
+                        </div>
+                    </div>
+                </div>  

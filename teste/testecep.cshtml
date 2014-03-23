@@ -1,0 +1,366 @@
+﻿@* Remova esta seção se estiver usando agrupamento *@
+@section Scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+}
+
+@{
+    
+
+    // Inicializar variáveis gerais da página
+    var email = "";
+    var password = "";
+    var confirmPassword = "";
+
+    string Nome;
+    string TelFixo;
+    string TelCelular;
+    string CPFCNPJ;
+    string Logradouro;
+    string Complemento;
+    string Bairro;
+    string Cidade;
+    string CEP;
+    string UF;
+    string Pais;
+
+    // Configurar validação
+    Validation.RequireField("email", "Você deve especificar um endereço de email.");
+    Validation.RequireField("password", "A senha não pode ficar em branco.");
+    Validation.Add("confirmPassword",
+        Validator.EqualsTo("password", "A senha e a confirmação de senha não correspondem."));
+    Validation.Add("password",
+        Validator.StringLength(
+            maxLength: Int32.MaxValue,
+            minLength: 6,
+            errorMessage: "A senha deve ter pelo menos 6 caracteres"));
+
+    // Se essa for uma solicitação POST, valide e processe os dados
+    if (IsPost) {
+        AntiForgery.Validate();
+        email = Request.Form["email"];
+        password = Request.Form["password"];
+        confirmPassword = Request.Form["confirmPassword"];
+
+        Nome = Request.Form["nome"];
+        CPFCNPJ = Request.Form["cpfcnpj"];
+        TelCelular = Request.Form["celular"];
+        TelFixo = Request.Form["telefone"];
+        Logradouro = Request.Form["logradouro"];
+        Complemento = Request.Form["complemento"];
+        Bairro = Request.Form["Bairro"];
+        Cidade  = Request.Form["Cidade"];
+        CEP = Request.Form["CEP"];
+        UF = Request.Form["uf"];
+        Pais = Request.Form["pais"];
+
+        // Valide a resposta captcha do usuário
+        // if (!ReCaptcha.Validate("PRIVATE_KEY")) {
+        //     ModelState.AddError("recaptcha", "A resposta captcha está incorreta");
+        // }
+
+        // Se todas as informações forem válidas, crie uma nova conta
+        if (Validation.IsValid()) {
+            // Insira um novo usuário no banco de dados
+            var db = Database.Open("CeliaJoias");
+
+            // Verifique se o usuário já existe
+            var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
+            if (user == null) {
+                // Insira o email na tabela de perfil
+                db.Execute("INSERT INTO UserProfile (Email, Nome, Logradouro, Complemento, Bairro, Cidade, Estado, Pais, Cep) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)", email, Nome, Logradouro, Complemento, Bairro, Cidade, UF, Pais, CEP );
+
+                // Crie e associe uma nova entrada no banco de dados de associação.
+                // Caso tenha êxito, continue processando a solicitação
+                try {
+                    bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
+                    var token = WebSecurity.CreateAccount(email, password, requireEmailConfirmation);
+                    if (requireEmailConfirmation) {
+                        var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                        var confirmationUrl = hostUrl + VirtualPathUtility.ToAbsolute("~/conta/confirmacao?confirmationCode=" + HttpUtility.UrlEncode(token));
+
+
+
+var Corpo = "<div id=':161' class='ii gt m1428df759e46ffb1 adP adO' style='font-size: 13px; direction: ltr; margin: 5px 15px 0px 0px; padding-bottom: 5px; position: relative; z-index: 0; text-align: justify;'>	<div id=':160' style='overflow: hidden;'>		<table style='width: 520px; margin-left: auto; margin-right: auto; border: 1px solid #e4e2e2;'>			<tbody>				<tr>					<td style='font-family: arial, sans-serif; margin: 0px;'><span style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'><img src='http://www.celiajoias.com/image/logo.png' alt='' /></span></span>					</td>				</tr>				<tr>					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #f6f3f3;'>						<table>							<tbody>								<tr>									<td>										<p>&nbsp;</p>										<p>Prezado(a) ";
+Corpo +=  Nome +",</p>	<div>	<p>Obrigado&nbsp;por&nbsp;cadastrar-se&nbsp;em nosso site!</p>											<p><span style='font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, 'Lucida Grande', sans-serif; font-size: 13px;'>Seu código de confirmação é: <strong>" + token +"</strong>.</span>											</p>											<p>&nbsp;Você precisa seguir para o endereço abaixo, para completar&nbsp;o processo de registro (basta clicar no link abaixo ou copiá-lo&nbsp;&nbsp;e colá-lo em seu navegador):</p>										</div>										<div>&nbsp;</div>									</td>								</tr>							</tbody>						</table>					</td>				</tr>				<tr>					<td><span></span>						<table align='center'>							<tbody>								<tr>									<td>										<p style='text-align: left;'>&nbsp;</p>										<p style='text-align: left;'>";
+Corpo +=  "Visite <a href=\"" + confirmationUrl + "\">" + confirmationUrl + "</a> para ativar sua conta.";
+Corpo += "</p><p style='text-align: left;'>Caso o link não seja aberto corretamente, veja&nbsp;se&nbsp;ele está&nbsp;quebrado.&nbsp;Se&nbsp;houver algum espaço em branco no link, copie todo&nbsp;&nbsp;ele, remova o espaço em branco para restaurar o link e cole-o&nbsp;em seu avegador para abrir a página que fará a confirmação do&nbsp;e-mail.</p>									</td>								</tr>							</tbody>						</table><span><br /></span>					</td>				</tr>				<tr>					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #f6f3f3;'>						<p>&nbsp;</p>Se&nbsp;você tiver algum problema ou precisar de assistência,&nbsp;&nbsp;escreva para&nbsp;&nbsp;<a href='mailto:contato@celiajoias.com'>contato@celiajoias.com</a><a href='mailto:contato@celiajoias.com.'>.</a>						<p>&nbsp;</p>					</td>				</tr>				<tr>					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #604261;'>						<table style='width: 500px;' align='center'>							<tbody>								<tr>									<td style='font-family: arial, sans-serif; margin: 0px;'>										<p style='color: #222222; font-size: 13px; text-align: right;'><span style='color: #ffffff; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 1.3em;'>Atenciosamente,</span>										</p>										<p style='color: #222222; font-size: 13px; text-align: right;'><span style='color: #ffffff;'>Célia Jóias.com</span><br /><span style='color: #ffff00;'><a style='color: #1155cc;' href='http://www.celiajoias.com/' target='_blank'>www.CeliaJoias.com</a></span>										</p>									</td>								</tr>							</tbody>						</table>					</td>				</tr>			</tbody>		</table>	</div></div><p>&nbsp;</p><p>&nbsp;</p>";
+
+
+
+
+
+                        WebMail.Send(
+                            to: email,
+                            subject: "Confirme sua conta",
+                            body: Corpo
+                        );
+                    }
+
+                    if (requireEmailConfirmation) {
+                        // Agradeça ao usuário por se registrar e informe que um email será enviado
+                        Response.Redirect("~/conta/conclusao");
+                    } else {
+                        // Volte para a página inicial e saia
+                        WebSecurity.Login(email, password);
+
+                        Response.Redirect("~/");
+                    }
+                } catch (System.Web.Security.MembershipCreateUserException e) {
+                    ModelState.AddFormError(e.Message);
+                }
+            } else {
+                // O usuário já existe
+                ModelState.AddFormError("Email address is already in use.");
+            }
+        }
+    }
+
+
+
+
+
+
+
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóaias - Cadastro</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+   <script>
+
+      
+
+    </script>
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+	 @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/conta/">Conta</a> » 
+            <a href="#">Novo Cadastro</a>
+      	</div>
+ 		<!--Breadcrumb End-->
+        
+        <!--Left Part Start-->
+		<aside id="column-left">
+    	   @RenderPage("~/Shared/Layout/_CategoriasLateral.cshtml")
+  		</aside>
+		<!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  				<h1>Cadastrar Conta</h1>
+                <p>Se você já possui uma conta conosco, por favor faça seu login <a href="~/conta/">nesta página.</a>.</p>
+                
+                
+                
+                <form enctype="multipart/form-data" method="post" action="cadastro">                
+    @AntiForgery.GetHtml()
+    @* Se houver pelo menos um erro de validação, notifique o usuário *@
+    @Html.ValidationSummary("A criação da conta não foi bem-sucedida. Corrija os erros e tente novamente.", excludeFieldErrors: true, htmlAttributes: null)
+                  
+                    
+                    
+                    
+                    
+                        <div class="rbox">
+                    	<h2>Informações Pessoais</h2>
+                        <div class="content">
+                      		<table class="form">      
+                            	<tr>
+                              		<td>Tipo:</td>
+                              		<td>
+                                    	<input type="radio" value="1" name="tipopessoa" checked="checked"> Pessoa Física            
+                                    	<input type="radio" value="0" name="tipopessoa"> Pessoa Jurídica            
+                                  	</td>
+                            	</tr>
+  
+
+
+                        		<tr>
+                          			<td><span class="required">*</span> Nome Completo:</td>
+                          			<td><input type="text" value="" name="nome" id="nome"></td>
+                                </tr>
+                            	<tr>
+                                    <td><span class="required">*</span> E-Mail:</td>
+                                    <td><input type="text" value="" name="email" id="email"></td>
+                            	</tr>
+                            	<tr>
+                              		<td><span class="required">*</span> Tel. Fixo:</td>
+                              		<td><input type="text" value="" name="telefone" id="telefone"></td>
+                            	</tr>
+                            	<tr>
+                              		<td>Tel. Celular:</td>
+                              		<td><input type="text" value="" name="celular" id="celular"></td>
+                            	</tr>
+                            	<tr>
+                              		<td><span class="required">*</span> CPF / CNPJ:</td>
+                              		<td><input type="text" value="" name="cpfcnpj" id="cpfcnpj"></td>
+                            	</tr>
+                      		</table>
+                    	</div>
+                    
+                        <h2>Endereço</h2>
+                        <div class="content">
+                        	<table class="form">
+
+                            	<tr>
+                                    <td><span class="required">*</span> Logradouro:</td>
+                                    <td><input type="text" value="" name="logradouro" id="logradouro"></td>
+                            	</tr>
+                            	<tr>
+                                    <td>Complemento:</td>
+                                    <td><input type="text" value="" name="complemento" id="complemento"></td>
+                            	</tr>
+                            	<tr>
+                                    <td>Bairro:</td>
+                                    <td><input type="text" value="" name="bairro" id="bairro"></td>
+                            	</tr>
+                            	<tr>
+                                    <td><span class="required">*</span> Cidade:</td>
+                                    <td><input type="text" value="" name="cidade" id="cidade"></td>
+                            	</tr>
+                            	<tr>
+                              		<td><span class="required" id="postcode-required">*</span> CEP:</td>
+                              		<td><input type="text" onblur="atualizacep(this.value)" value="" name="cep" id="cep"></td>
+                            	</tr>
+                            	<tr>
+                              		<td><span class="required">*</span> Estado:</td>
+                              		<td><select name="uf" id="uf">
+                                  			<option value=""> --- Selecione o Estado --- </option>                      
+                                            <option value="AC">Acre	</option>
+                                            <option value="AL">Alagoas</option>
+                                            <option value="AP">Amapá</option>
+                                            <option value="AM">Amazonas</option>
+                                            <option value="BA">Bahia</option>
+                                            <option value="CE">Ceará</option>
+                                            <option value="DF">Distrito Federal</option>
+                                            <option value="ES">Espírito Santo</option>
+                                            <option value="GO">Goiás</option>
+                                            <option value="MA">Maranhão</option>
+                                            <option value="MT">Mato Grosso</option>
+                                            <option value="MS">Mato Grosso do Sul</option>
+                                            <option value="MG">Minas Gerais</option>
+                                            <option value="PA">Pará</option>
+                                            <option value="PB">Paraíba</option>
+                                            <option value="PR">Paraná</option>
+                                            <option value="PE">Pernambuco</option>
+                                            <option value="PI">Piauí</option>
+                                            <option value="RJ">Rio de Janeiro</option>
+                                            <option value="RN">Rio Grande do Norte</option>
+                                            <option value="RS">Rio Grande do Sul</option>
+                                            <option value="RO">Rondônia</option>
+                                            <option value="RR">Roraima</option>
+                                            <option value="SC">Santa Catarina</option>
+                                            <option value="SP">São Paulo</option>
+                                            <option value="SE">Sergipe</option>
+                                            <option value="TO">Tocantins</option>
+                                            </select>
+                                </td>
+                            	</tr>
+                            	
+
+                                        	<tr>
+                                    <td>Pais:</td>
+                                    <td><input type="text" value="Brasil" name="Pais" id="Pais"></td>
+                            	</tr>
+
+
+                            </tbody></table>
+                    	</div>
+                        
+                        <h2>Senha para acesso</h2>
+                        <div class="content">
+                            <table class="form">
+                            	<tr>
+                              		<td><span class="required">*</span> Senha:</td>
+                              		<td><input type="password" value="" name="password" id="password"></td>
+                            	</tr>
+                            	<tr>
+                            		<td><span class="required">*</span> Repetir Senha:</td>
+                              		<td><input type="password" value="" name="confirmpassword" id="confirmPassword"></td>
+                            	</tr>
+                            </table>
+                       	</div>
+                    
+                        <h2>Informativo da loja</h2>
+                        <div class="content">
+                        	<table class="form">
+                            	<tr>
+                              		<td>Assinar informativo:</td>
+                              		<td>
+                                    	<input type="radio" value="1" name="newsletter" checked="checked"> Sim            
+                                    	<input type="radio" value="0" name="newsletter"> Não            
+                                  	</td>
+                            	</tr>
+                            </table>
+                    	</div>
+                        
+                        <div class="buttons">
+                       		<div class="right">
+                            	I have read and agree to the 
+                            	<a alt="Privacy Policy" href="#" class="colorbox cboxElement"><b>Privacy Policy</b></a>                        	
+                                <input type="checkbox" value="1" name="agree">   
+                          		<label class="btn"><input type="submit" class="button" value="Continue"></label>
+                      		</div>
+                        </div>
+              		</div>
+  				</form>
+  			</div>
+  		</section>  
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+		 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+<!---cep-->
+<script type="text/javascript" src="~/js/pesquisa-cep.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+﻿@{
+
+
+var produtoID = !UrlData[0].IsEmpty() ? UrlData[0] : "0";
+var db = Database.Open("CeliaJoias");
+var sqlSelect = "SELECT * FROM Produtos WHERE CodProduto = @0";
+var produto = db.QuerySingle(sqlSelect, produtoID);
+
+if (produto == null)
+{
+  Response.Redirect("/sistema/produtos/");   
+}
+
+    
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - @produto.Titulo</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/sistema/produtos">Relação de Produtos</a> » 
+            <a href="#">Visualizar</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+          @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+
+
+
+
+                
+  				<h1>@produto.Titulo</h1>
+
+                    <div class="product-info">
+                    	
+                   		<div class="left">
+                            <div class="image"> 
+                                <a href="~/image/produtos/@produto.Imagem01" title="Diamond Rings" class="cloud-zoom thumbnail" id='zoom1' rel="adjustX: 10, adjustY:-4, tint:'#000000',tintOpacity:0.2, zoomWidth:365, zoomHight: 275, position:'inside', showTitle:false"> 
+                                <img width="300" height="300" src="/image/produtos/@produto.Imagem01" title="Diamond Rings" alt="Diamond Rings" id="image" /> 
+                                </a> 
+                            </div>
+                            <a href="~/image/product/04-ring-500x500.jpg" title="Diamond Rings" class="zoom fancybox linkText" rel="gallery1" id="zoom_image">zoom</a>
+                            <div class="image-additional"> 
+                                <a href="~/image/product/03-ring-500x500.jpg" title="Diamond Rings" rel="useZoom: 'zoom1', smallImage: 'image/product/03-ring-300x300.jpg'" class="cloud-zoom-gallery thumbnail"> 
+                                    <img src="~/image/product/03-ring-75x75.jpg" title="Diamond Rings" alt="Diamond Rings" /> 
+                                </a> 
+                                <a href="~/image/product/02-ring-500x500.jpg" title="Diamond Rings" rel="useZoom: 'zoom1', smallImage: 'image/product/02-ring-300x300.jpg'" class="cloud-zoom-gallery thumbnail"> 
+                                    <img src="~/image/product/02-ring-75x75.jpg" title="Diamond Rings" alt="Diamond Rings" /> 
+                                </a> 
+                                <a href="~/image/product/01-ring-500x500.jpg" title="Diamond Rings" rel="useZoom: 'zoom1', smallImage: 'image/product/01-ring-300x300.jpg'" class="cloud-zoom-gallery thumbnail"> 
+                                    <img src="~/image/product/01-ring-75x75.jpg" title="Diamond Rings" alt="Diamond Rings" /> 
+                                </a> 
+                            </div>
+                        </div>
+                    
+                        <div class="right">
+                        	<div class="description">                            
+                                <span>Nome:</span> @produto.Titulo  <br />
+                                <span>Cód. Refência:</span> @produto.CodReferencia<br />
+                                <span>Descrição:</span> @produto.Descricao<br />
+                                <span>Categoria:</span> @FuncaoProdutos.Produto_Categoria(produto.CodProduto)<br />
+                                  <hr />
+                                <span>Disponibilidade:</span> @if(produto.Ativo){<text>Produto Ativo</text>}else{ <text>Produto Desativado</text>}<br />
+                                <span>Peso:</span> @produto.Peso<br />
+                                <span>Fabricante:</span> @if(produto.Fabricante == null || produto.Fabricante == 0)
+                                                         {<text> Não Informado  </text>                                                             
+                                                         } else {<text>@FuncaoProdutos.Fabricante_PesqCodigo(produto.Fabricante)</text>}<br />
+                                
+                                 <hr />
+                                <span>Custo:</span> @String.Format("{0:C}", produto.Preco_Compra)<br />                            
+                                <span>Preço:</span> @String.Format("{0:C}", produto.Preco_Venda)<br />  
+                                  <hr />
+                                <span>Estoque:</span>@produto.Estoque<br />
+                                <span>Limite Máx:</span>@produto.QtdeMaxCompra<br />
+                                <span>Limite Mín:</span>@produto.QtdeMinCompra<br />
+
+                                <hr />
+                              
+                                <span>Cadastro:</span>@produto.DataCadastro<br />
+                                <span>Ativação:</span>@produto.DataAtivacao<br />
+                                <span>Destavição:</span>@produto.DataDesativacao<br />
+
+                                 <hr />
+                                <span>Destaque:</span>@if(produto.Destaque){<text>Sim</text>}else{<text>Não</text>}<br />
+                                <span>Anotação:</span>@produto.Anotacao<br />
+
+                            </div>
+
+
+
+ <hr /> </br>
+	<div class="buttons">
+        		<div class="left">
+                    	<label class="btn"><a class="button" href="~/sistema/produtos/confirmar/@produtoID">Excluir este Produto</a></label>
+                   	</div>   
+    				<div class="right">
+                    	<label class="btn"><a class="button" href="~/sistema/produtos/atualizar/@produtoID">Editar este Produto</a></label>
+                   	</div>
+  				</div>
+                </br>
+
+                     
+                        </div>
+                    </div>
+
+
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

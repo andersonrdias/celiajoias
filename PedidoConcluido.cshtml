@@ -1,0 +1,271 @@
+﻿@{
+   
+if (!WebSecurity.IsAuthenticated)
+{
+   Response.Redirect("~/");
+}   
+   
+    
+var usuarioAtual = WebSecurity.CurrentUserId;
+var db = Database.Open("CeliaJoias");
+
+
+//var SelectPedido = "select MAX (CodPedido) from Pedidos where CodUsuario = 3";
+
+var row1 = db.QuerySingle("select MAX (CodPedido) from Pedidos where CodUsuario = "+usuarioAtual);
+int CodUltimoPedido = row1.Column1;  
+
+var SelectPedido = "select * from Pedidos where CodPedido = " + CodUltimoPedido;
+
+var Nome = "";
+var Email = "";
+
+foreach (var row in db.Query("select * from UserProfile where UserId = " + usuarioAtual)) {	
+Nome = row.Nome;
+Email = row.Email;
+}
+
+int ContProdutos = 1;
+string ItenProd = "";
+string ItenDescricao = "";
+string ItenValor = "";
+string ItenQuantidade = "";
+string ItenPeso = "";
+
+
+
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Encerrar Pedido</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+<form name="comandos" method="post" target="pagseguro">
+    <input type = "hidden" name="comando" value="0">
+</form>
+        
+
+<!--Formulario para envio de dados--->
+
+</head>
+<body OnLoad="start_sending();">
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Encerrar Pedido</a>             
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+            <div class="box">
+            	<div class="box-heading">Account</div>
+            	<div class="box-category">
+            		<ul>
+                    	<li><a href="#">My Account</a></li>
+                    	<li><a href="#">Edit Account</a></li>
+              			<li><a href="#">Password</a></li>
+                    	<li><a href="#">Address Books</a></li>
+                        <li><a href="#">Wish List</a></li>
+                        <li><a href="#">Order History</a></li>
+                        <li><a href="#">Downloads</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Transactions</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    	<li><a href="#">Logout</a></li>
+                  	</ul>
+            	</div>
+            </div>
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+<script type="text/javascript">
+var qtd = 0;
+var limit = 5;
+var seconds = 10;
+
+function submeter(){ 
+  if( qtd < limit ){
+    document.forms.formpagseguro.submit();
+  }
+qtd++;
+}
+function start_sending(){
+    seconds *= 1000;
+    window.setInterval(function(){submeter()},seconds);
+}
+function start_timer(){
+    qtd = limit;
+}
+
+function stop_timer(){
+    qtd = limit;
+}
+
+
+</script>
+<script type="text/javascript">
+<!--
+ var numero = 10;
+ function chamar(){if(numero>0){document.getElementById('timers').innerHTML = --numero +' segundos';}}
+setInterval("chamar();", 1000);
+setTimeout("",11000);
+//-->
+</script>
+
+
+                
+  				<h1>Pedido Concluído   @CodUltimoPedido</h1>
+    			<div class="wishlist-info">
+                <p>Muito obrigado pelo seu pedido. Um email de confirmação foi enviado para o seu email.</p>
+                <p>Seu pedido será despachado de imediato e deverá estar chegando dentro de 3 dias úteis.</p>
+<br></br>
+                        <div class="checkout-content" style="display:block;">
+                            <div class="left">
+                                <h2>Redirecionamento</h2><br>
+                                <p>Você será redirecionado para a página incial do site em poucos instantes:</p>
+   
+                        <h2>      <div id="timers">10 segundos</div> </h2>
+    
+
+                            </div>
+                            <div class="right">
+
+                                <!-----------------Pagamento-->
+                                 
+                                <!-- Declaração do formulário -->  
+<form name="formpagseguro"  method="post" action="https://pagseguro.uol.com.br/v2/checkout/payment.html">  
+      
+@foreach (var row2 in db.Query(SelectPedido)) {	   
+    
+    
+     <!-- Campos obrigatórios -->  
+    <input type="hidden" name="receiverEmail" value="celiajoias@celiajoias.com">  
+    <input type="hidden" name="currency" value="BRL">  
+    
+    foreach (var rowItens in db.Query( "select * from PedidoItens where CodPedido =" + CodUltimoPedido)) {	   
+        ItenProd = "itemId"+ContProdutos;
+        ItenDescricao = "itemDescription"+ContProdutos;
+        ItenValor = "itemAmount"+ContProdutos;
+        ItenQuantidade = "itemQuantity"+ContProdutos;
+        ItenPeso = "itemWeight"+ContProdutos;
+
+  
+    <!-- Itens do pagamento (ao menos um item é obrigatório) -->  
+    <input type="hidden" name="@ItenProd" value="@ContProdutos">  
+    <input type="hidden" name="@ItenDescricao" value="@FuncaoProdutos.Produto_Titulo(rowItens.CodProduto)">  
+    <input type="hidden" name="@ItenValor" value="@FuncaoPagamento.ConverterValor(String.Format("{0:N}", rowItens.Preco))">  
+    <input type="hidden" name="@ItenQuantidade" value="1">  
+    <input type="hidden" name="@ItenPeso" value="1000">  
+
+    ContProdutos ++;
+     }
+  
+      
+    <!-- Código de referência do pagamento no seu sistema (opcional) -->  
+    <input type="hidden" name="reference" value="REF1234">  
+      
+    <!-- Informações de frete (opcionais) -->  
+    <input type="hidden" name="shippingType" value="1">  
+    <input type="hidden" name="shippingAddressPostalCode" value="@row2.CEP">  
+    <input type="hidden" name="shippingAddressStreet" value="@row2.Logradouro">  
+    <input type="hidden" name="shippingAddressNumber" value="">  
+    <input type="hidden" name="shippingAddressComplement" value="@row2.Complemento">  
+    <input type="hidden" name="shippingAddressDistrict" value="@row2.Bairro">  
+    <input type="hidden" name="shippingAddressCity" value="@row2.Cidade">  
+    <input type="hidden" name="shippingAddressState" value="@row2.UF">  
+    <input type="hidden" name="shippingAddressCountry" value="@row2.Pais">  
+      
+    <!-- Dados do comprador (opcionais) -->  
+    <input type="hidden" name="senderName" value="@Nome">  
+    <input type="hidden" name="senderAreaCode" value="">  
+    <input type="hidden" name="senderPhone" value="">  
+    <input type="hidden" name="senderEmail" value="@Email">  
+      
+    <!-- submit do form (obrigatório) -->  
+    <input type="image" name="submit"   
+    src="image/pagseguro.jpg"   
+    alt="Pague com PagSeguro">  
+
+}      
+</form>  
+
+                    	       <!----------Pagamento-->
+    
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+    			
+  				</div>
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+<!--Javascript para contagem de tempo-->
+        
+
+</body>
+</html>

@@ -1,0 +1,325 @@
+﻿@{
+    
+if (!WebSecurity.IsAuthenticated)
+{
+   Response.Redirect("~/conta/");
+}
+var senhaAtual = "";
+var novaSenha1 = "";
+var novaSenha2 = "";
+if(IsPost)
+{
+    senhaAtual = Request["senhaAtual"];
+    novaSenha1 = Request["novaSenha1"];
+    novaSenha2 = Request["novaSenha2"];
+    // Validação
+    if (senhaAtual.IsEmpty()) {
+    ModelState.AddError("senhaAtual", "A senha atual deve ser informada.");
+    }
+    if (novaSenha1.IsEmpty()) {
+    ModelState.AddError("novaSenha1", "Obrigatória.");
+    }
+    if (novaSenha2.IsEmpty()) {
+    ModelState.AddError("novaSenha2", "Obrigatória.");
+    }
+    if(novaSenha1 != novaSenha2)
+    {
+    ModelState.AddError("novaSenha1", "A senha não confere.");
+    }
+    // tenta mudar a senha
+    if(ModelState.IsValid)
+    {
+        var currentUser = WebSecurity.CurrentUserName;
+        if(WebSecurity.ChangePassword(currentUser, senhaAtual, novaSenha1))
+        {
+            Response.Redirect("~/Default");
+        }
+        else
+        {
+            ModelState.AddFormError("Não foi possível alterar a senha.");
+        }
+    }
+}
+}
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Conta</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+</head>
+<body>
+
+ @RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+	 @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  
+  	<!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Conta</a> » 
+            <a href="#">Identificação</a>
+      	</div>
+        <!--Breadcrumb End-->
+ 		
+        <!--Left Part Start-->
+		<aside id="column-left">
+    	   @RenderPage("~/Shared/Layout/_CategoriasLateral.cshtml")
+  		</aside>
+		<!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  				<h1>Informações sobre a conta</h1>
+                <p>xxxxx</p>
+                <br/>
+                     
+                <!--Checkout Start--> 
+                <div class="checkout">
+                    <div id="checkout">
+                        <div class="checkout-heading">Resumo</div>
+                       
+                        <div class="checkout-content" style="display:block;">
+                             
+                            
+                            </div>
+                        
+                    </div>
+                    <div id="payment-address">
+                        <div class="checkout-heading"><span>Trocar senha</span></div>
+                        <div class="checkout-content">
+               
+ @Html.ValidationSummary(true)     
+<form action="usuario" method="post" class="contasFormulario">
+<span class="required">*</span> Senha Atual:<br>
+<input type="password" class="large-field" value="" name="senhaAtual" id="senhaAtual">
+@Html.ValidationMessage("senhaAtual")
+<br><br>
+
+<span class="required">*</span> Nova Senha:<br>
+<input type="password" class="large-field" value="" name="novaSenha1" id="novaSenha1">
+@Html.ValidationMessage("novaSenha1")
+<br><br>
+
+<span class="required">*</span> Confirmar a Nova Senha: <br>
+<input type="password" class="large-field" value="" name="novaSenha2" id="novaSenha2">
+@Html.ValidationMessage("novaSenha2")
+<br><br>
+  <input type="submit" class="button" id="button-confirm" value="Alterar Senha">
+</form>
+
+
+                  </div>
+
+              
+                    </div>
+                    <div id="shipping-address">
+                        <div class="checkout-heading">Endereço</div>
+                        <div class="checkout-content">
+ 
+<!-------------teste imagem-->  
+                            
+               <h3>Imagem Principal</h3>            
+                                                      
+            <article class="styled">
+                <input type="file" name="imagefile1" onchange="previewImage(this,[256,64],4);" />
+                <div class="imagePreview"></div>
+            </article>                         
+                            
+ 
+                           
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 02</h3>                       
+                    <input type="file" name="imagefile2" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 03</h3>                       
+                    <input type="file" name="imagefile3" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 04</h3>                       
+                    <input type="file" name="imagefile4" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+			</tr>
+        	<tr>
+				<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 05</h3>                       
+                    <input type="file" name="imagefile5" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 06</h3>                       
+                    <input type="file" name="imagefile6" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 07</h3>                       
+                    <input type="file" name="imagefile7" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+			</tr>
+		</tbody>
+	</table>
+</p>
+                            
+                            
+
+
+<!----------Imagens fim-->
+
+
+
+                        </div>
+                    </div>
+                    <div id="shipping-method">
+                        <div class="checkout-heading">Endereço </div>
+                        <div class="checkout-content">
+                        	<h4>Em desenvolvimento</h4>
+                            <p>Está função tem por objtivo divulgar os produtos cadastrados nas redes-sociais</p>
+                            <br>
+
+                        </div>
+                    </div>
+                    <div id="payment-method">
+                        <div class="checkout-heading">Passo 5: Informações fiscais</div>
+                        <div class="checkout-content">
+                            <h4>Em desenvolvimento</h4>
+                            <p>Está função tem por objtivo auxiliar o controle fiscal</p>
+                            <br>
+                        </div>
+                    </div>
+                    <div id="confirm">
+                        <div class="checkout-heading">Passo 6: Resumo</div>
+                        <div class="checkout-content">
+                        	<div class="checkout-product">
+                                <table>
+                                    <tr>
+                                        <td class="name">Product Name</td>
+                                        <td class="model">Model</td>
+                                        <td class="quantity">Quantity</td>
+                                        <td class="price">Price</td>
+                                        <td class="total">Total</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="name"><a href="#">Necklace</a></td>
+                                        <td class="model">Product 16</td>
+                                        <td class="quantity">1</td>
+                                        <td class="price">£386.06</td>
+                                        <td class="total">£386.06</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="name"><a href="#">Bracelet</a></td>
+                                        <td class="model">product 11</td>
+                                        <td class="quantity">1</td>
+                                        <td class="price">£79.03</td>
+                                        <td class="total">£79.03</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Sub-Total:</b></td>
+                                        <td class="total">£393.59</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Flat Shipping Rate:</b></td>
+                                        <td class="total">£3.27</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Eco Tax (-2.00):</b></td>
+                                        <td class="total">£3.93</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>VAT (17.5%):</b></td>
+                                        <td class="total">£69.45</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Total:</b></td>
+                                        <td class="total">£470.25</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="payment">
+                                <div class="buttons">
+                                    <div class="right">
+                                        <input type="button" class="button" id="button-confirm" value="Cadastrar Produto">
+
+                                        <button type="submit"  value="Inserir"> Salvar Plano</button>  
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Checkout End--> 
+  			
+
+
+
+  			</div>
+  		</section> 
+         
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

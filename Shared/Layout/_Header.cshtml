@@ -1,0 +1,86 @@
+﻿@{
+
+var db = Database.Open("CeliaJoias");    
+var SelectCategoria = "select * from categoria where ativo = 'true' order by Titulo";
+//select * from categoria where ativo = 'true' order by Titulo
+
+
+
+
+    
+}
+
+    <header id="headerWrapper">
+        <div id="header">
+        	<div id="logo">
+          		<a href="~/"><img src="~/image/logo.png" title="Your Store" alt="Celia Joias" /></a>
+           	</div>
+            <!-- Mini Cart Start-->
+       @RenderPage("~/Shared/Layout/_Carrinho.cshtml")
+            <!-- Mini Cart End-->
+
+
+          	
+            
+            
+                         @if (WebSecurity.IsAuthenticated) {
+                            <text>
+<div id="welcome">
+                                Olá, <a class="email" href="~/conta/" title="Manage">@WebSecurity.CurrentUserName</a>!
+                                <form id="logoutForm" action="~/conta/sair" method="post">
+                                    @AntiForgery.GetHtml()
+                                    <a href="javascript:document.getElementById('logoutForm').submit()">Logoff</a>
+                                </form>
+    </div>
+                            </text>
+                        } else {
+<div id="welcome"> Olá visitante, acesse a sua <a href="~/conta/">Conta</a> ou <a href="~/conta/cadastro">cadastre-se</a>. </div>
+                        }           
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <div id="search">
+                
+
+
+                <form action="~/pesquisa" method="post">
+
+
+
+<div class="button-search"></div>
+                <input type="text" name="criterio" id="criterio" placeholder="Pesquisar" value="" />
+
+</form>
+
+            	
+                
+           	
+            
+            
+            </div>
+
+
+
+     	</div>
+        <!-- Main Navigation Start-->            
+        <nav id="nav">
+            <div id="menu">
+                <h3 class="menuarrow"><span>Menu</span></h3>
+                <ul>
+                    @foreach (var row in db.Query(SelectCategoria)) {	
+                       <li><a href="~/categoria/@row.Apelido">@row.Titulo</a></li>          
+                    }
+                     <li><a href="#">Lançamentos</a></li> 
+                    </ul>
+            </div>
+        </nav>
+        <!-- Main Navigation End-->
+    </header>

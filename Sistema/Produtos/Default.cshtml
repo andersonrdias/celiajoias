@@ -1,0 +1,197 @@
+﻿@{
+    
+
+
+var db = Database.Open("CeliaJoias");
+var selectQueryStringProdutos = "select * from Produtos order by Titulo";
+
+
+var produtos = db.Query(selectQueryStringProdutos);
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Relação de Produtos</title>
+
+
+
+
+<style type="text/css" title="currentStyle">
+			
+</style>
+
+
+
+
+
+		
+<script type="text/javascript" language="javascript" src="~/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="~/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function() {
+	$('#TabProdutos').dataTable();
+} );
+</script>
+
+
+
+
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/sistema/produtos/">Produtos</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+     @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  			
+
+                
+  				<h1>Relação de Produtos</h1>
+
+	<div class="buttons">
+    				<div class="right">
+                    	<label class="btn"><a class="button" href="~/sistema/produtos/cadastro">Cadastrar Produto</a></label>
+                   	</div>
+  				</div>
+                </br>
+
+
+
+    			<div class="wishlist-info">
+    				<table id="TabProdutos">
+                    	<thead>
+                            <tr>
+                              <td class="image">Imagem</td>
+                              <td class="name">Nome do Produto</td>
+                              <td class="model">Categoria</td>
+                              <td class="stock">Situação</td>
+                              <td class="price">Preço</td>
+                            
+                            </tr>
+      					</thead>
+            			<tbody id="wishlist-row43">
+                              @foreach (var item in produtos) {
+        					<tr>
+          						<td class="image">            
+                                	<a href="/sistema/produtos/visualizar/@item.CodProduto"><img  width="50" height="50" title="" alt="" src="/image/produtos/mini_@item.Imagem01"></a>
+                                </td>
+                              	<td class="name">
+                                	<a href="/sistema/produtos/visualizar/@item.CodProduto">@item.Titulo</a>
+                               	</td>
+                              	<td class="model"> @FuncaoProdutos.Produto_Categoria(item.CodProduto)</td>
+                              	<td class="stock">@if(item.Ativo){<text><font color="green">Produto Ativo</font> </text>}else{<text><font color="red">Desativado</font></text>} @if(item.Destaque){<text> <br> <font color="blue">Produto em Destaque</font> </text>}</td> 
+                              	<td class="price">            
+                                	<div class="price">@String.Format("{0:C}", item.Preco_Venda)</div>
+                                </td>
+          					
+                            </tr>
+                            }
+                      	</tbody>
+          			</table>
+  				</div>
+
+
+
+<!--------------teste inicio -->
+
+ 
+                
+<!---------------teste final-->
+    		
+
+
+
+<!-------------fim tabela-->
+
+
+
+
+
+
+
+
+
+
+
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+
+
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+
+
+<!-- JS Part End-->
+
+
+ 
+
+
+
+
+</body>
+</html>

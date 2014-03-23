@@ -1,0 +1,58 @@
+﻿@{
+    
+// Cria um carrinho vazio na sessão se ele não exitir
+if (Session["carrinho"] == null)
+{
+   Session["carrinho"] = new Carrinho();
+}
+// Pega o carrinho atual da Sessão
+Carrinho carrinho = (Carrinho)Session["carrinho"];
+
+
+
+    
+}
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/pt_BR/all.js#xfbml=1&appId=227267757439906";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- Top Part Start-->
+<div class="top-links">
+	<div class="links"> 
+  		<a href="~/">Página Inicial</a>|    	
+    	<a href="~/conta/">Minha Conta</a>|
+    	<a href="~/carrinho">Carrinho de Compra // @carrinho.LocalEntrega</a>
+@if(carrinho.Itens.Count() > 0)
+{ 
+<text>
+| <a href="~/confirmarpedido">Finalizar Pedido</a> 
+</text>
+    	
+}
+	</div>
+ 
+
+@if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Admin"))
+	{
+    <text>
+      	<div class="currency">
+    	
+   <label class="btn"><a class="button" href="~/sistema/">Administração do Site</a></label>
+
+      	
+        </div> 
+    
+    </text>
+   
+}
+
+
+     	
+</div>
+<!-- Top Part End-->

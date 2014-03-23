@@ -1,0 +1,62 @@
+﻿@functions {
+
+
+
+public static decimal CalculoFrete ()   
+{
+    //Valor Inicial
+    decimal TxEntrega = 0;   
+    
+        //Verifica se existe pedidos
+        // Cria um carrinho vazio na sessão se ele não exitir
+        if (Session["carrinho"] == null)
+        {
+        Session["carrinho"] = new Carrinho();
+        }
+        // Pega o carrinho atual da Sessão
+        Carrinho carrinho = (Carrinho)Session["carrinho"];
+    
+
+        var EstadoEntrega = carrinho.LocalEntrega;
+
+
+    
+    if(carrinho.ValorTotal >0){
+    //Cálcular somente caso exista compra no carrinho + esta logado???????
+
+        if(EstadoEntrega != "RJ")
+        {
+        TxEntrega = 10.75m;
+        }
+
+
+    }
+    
+    
+    //Retornar Taxa de Entraga
+    return TxEntrega;
+
+
+}
+
+
+public static string PesquisarUF (string cliente)   {
+
+var db = Database.Open("CeliaJoias");
+var row = db.QuerySingle("select Estado from UserProfile where Email = '" + cliente +"'");
+//var row = db.QuerySingle("select * from UserProfile where UserId = '" + codcliente +"'");
+string UF = row.Estado;
+return UF;    
+
+
+
+}
+
+
+
+
+
+
+    
+}
+

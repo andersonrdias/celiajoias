@@ -1,0 +1,553 @@
+﻿@{
+    
+//-
+    
+
+var db = Database.Open("CeliaJoias");
+
+var selectQueryStringCategoria = "select * from Categoria where Ativo = 'true' order by Titulo";
+var selectQueryFabricante = "select * from Fabricantes where Ativo = 'true' order by  Nome";
+
+
+var QtdeMaxMin = 50; //Numero máximo para select em Máx e Mín de compra de produtos
+
+//select * from Categoria where Ativo = 'true' order by Titulo
+
+var NomeProduto = Request["nomeproduto"];
+var Descricao = Request["descricao"];
+var Categoria = Request["categoria"];
+var Referencia = Request["referencia"];
+
+
+var DataCadastro = DateTime.Now;
+
+var Fabricante =  Request["fabricante"];
+var Ativo =  Request["produtoativo"];
+bool AtivoVR = true;
+var Tag =  Request["tag"];
+var Peso = Request["Peso"];
+var Preco_Compra =  Request["precocompra"];
+var Preco_Venda =  Request["precovenda"];
+var Estoque = Request["estoque"];
+var QtdeMaxCompra = Request["qtdemaxcompra"];
+var QtdeMinCompra = Request["qtdemincompra"];
+var Data_Ativacao =  Request["dataativacao"];
+var Data_Desativacao =  Request["datadesativacao"];
+var Frete =  Request["frete"];
+var Destaque =  Request["destaque"];
+bool DestaqueVR = false; 
+var Anotacao = Request["Anotacao"];
+
+//Foto
+WebImage imagemOriginal = null;
+WebImage imagemMiniatura = null;
+var nomeArquivoImagem = "";
+
+string Foto = "";
+
+
+if (IsPost) {
+
+
+        //Foto
+
+      
+    imagemOriginal = WebImage.GetImageFromRequest();
+    if(imagemOriginal != null)
+    {
+      nomeArquivoImagem = Guid.NewGuid().ToString() + "_" + Path.GetFileName(imagemOriginal.FileName);
+      imagemOriginal.Save(@"~\image\produtos\" + nomeArquivoImagem);
+      imagemMiniatura = imagemOriginal.Resize(width: 60,height:60,preserveAspectRatio: true);
+      imagemMiniatura.Save(@"~\image\produtos\mini_" + nomeArquivoImagem);
+    }
+
+
+
+
+
+
+
+Foto = nomeArquivoImagem;
+
+
+
+
+
+
+
+// Le o nome do produto e realiza a validação não permitindo um nome vazio
+NomeProduto = Request["nomeproduto"];
+if (NomeProduto.IsEmpty()) {
+   ModelState.AddError("Titulo", "O Nome do produto deve ser informado.");
+}
+
+
+// Le o nome do produto e realiza a validação não permitindo um nome vazio
+Descricao = Request["descricao"];
+if (Descricao.IsEmpty()) {
+   ModelState.AddError("Descricao", "A Descrição do produto deve ser informado.");
+}
+
+
+Categoria = Request["categoria"];
+if (Categoria.IsEmpty()) {
+   ModelState.AddError("Categoria", "A Categoria deve ser informado.");
+}
+
+
+Referencia = Request["Referencia"];
+if (Referencia.IsEmpty()) {
+   ModelState.AddError("Referencia", "O Código de referencia deve ser informado.");
+}
+
+
+
+
+//----------------------------------------------------------------------------------------------------
+
+if (Estoque == "") {
+   Estoque = "0";
+}
+
+if (Preco_Compra == "") {
+  Preco_Compra = "0";
+}
+
+if (Data_Ativacao == "") {
+  Data_Ativacao = string.Format("{0:dd/MM/yyyy}", DataCadastro);
+}
+
+if (Data_Desativacao == "") {
+  //Data_Ativacao = string.Format("{0:dd/MM/yyyy}", DataCadastro);
+  Data_Desativacao = null;
+}
+
+if (Ativo == "true") {
+ 
+ AtivoVR = true;
+} else {
+    AtivoVR = false;
+}
+
+
+if (Destaque == "true") {
+  DestaqueVR = true;
+  } else
+  {
+  DestaqueVR = false;
+  }
+
+
+
+// Define a instrução SQL para incluir dados. Os valores para atribuir as colunas
+// na tabela Produtos são definidos como parâmetros usando a palavra-chave VALUES
+if(ModelState.IsValid) {
+  
+  var inserirQuery = "INSERT INTO Produtos (Titulo, Descricao, CodReferencia, Categoria, Imagem01, Preco_venda, Preco_Compra, Anotacao, Peso, Fabricante, DataAtivacao, DataDesativacao, Estoque, QtdeMaxCompra, QtdeMinCompra, Ativo, Destaque, Tag ) " + "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17)";
+  db.Execute(inserirQuery, NomeProduto, Descricao, Referencia, Categoria, Foto, Preco_Venda, Preco_Compra, Anotacao, Peso, Fabricante, Data_Ativacao, Data_Desativacao, Estoque, QtdeMaxCompra, QtdeMinCompra, AtivoVR, DestaqueVR, Tag);
+
+
+//  var inserirQuery = "INSERT INTO Produtos (Titulo, Descricao, CodReferencia, Categoria, Imagem01, Preco_venda, Preco_Compra, Anotacao, Peso, Fabricante, Ativo, Destaque ) " + "VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11)";
+//  db.Execute(inserirQuery, NomeProduto, Descricao, Referencia, Categoria, Foto, Preco_Venda, Preco_Compra, Anotacao, Peso, Fabricante, AtivoVR, DestaqueVR);
+  
+
+  // Exibe a página que lista os protudosDisplay the page that lists products.,,
+  Response.Redirect(@Href("~/Sistema/Produtos/Sucesso"));
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Cadastro de Produto</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+    <style>
+
+
+        /* === Styles === */
+        body {color: #747474;font-family:"Myriad Pro",sans-serif; font-size:14px;}
+        section {margin:20px 0px;}
+        article {margin:40px 20px;}
+
+
+        .content {width:80%;margin:20px auto;}
+        ol {margin-left:40px;}
+        ol li {margin:10px 0px;}
+        ol li strong {color:#0095ea;font-weight:normal;font-size:1.1em;}
+        ol li p {font-style:italic;}
+        .imagePreview{margin-top:10px;}
+        .imagePreview img {margin:10px;}
+        article.styled .imagePreview img {
+            padding:15px;
+            border:2px dashed #ccc;
+            border-radius:10px;
+        }
+        footer {margin:20px 0px;text-align:center;}
+        a{color:#0095ea;text-decoration:none;}
+        a:hover {text-decoration:underline;}
+    </style>
+
+    <script src="/js/html5.image.preview.min.js"></script>
+
+
+
+ 
+
+
+
+
+</head>
+<body>
+
+ @RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+    
+    <!-- Header Part Start-->
+	  @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start--> 
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> »
+            <a href="~/sistema/produtos/">Produtos</a> »
+            <a href="#">Novo Cadastro</a>
+      	</div>
+ 		<!--Breadcrumb End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				
+                <!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a></li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a></li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a></li>
+                    </ul>
+                </div>
+                <!--Social Icons End-->
+                
+  				<h1>Novo cadastro de Produtos</h1>
+ <form method="post" action="#" enctype="multipart/form-data">               
+                <!--Checkout Start--> 
+                    <div id="checkout">
+                        <div class="checkout-heading">Passo 1: Identificação do Produto</div>
+                       
+                <div class="checkout">
+                        <div class="checkout-content" style="display:block;">
+                             
+                            <div class="left">
+          
+                                <span class="required">*</span> Cód. Referência do Produto:<br>
+                                <input type="text" class="large-field" value="" name="referencia" id="referencia">
+                                <br><br>
+                                <span class="required">*</span> Nome do Produto:<br>
+                                <input type="text" class="large-field" value="" name="nomeproduto" id="nomeproduto">
+                                <br><br>
+                                <span class="required" style="width: 67%;">*</span> Categoria:<br>
+                                <select class="large-field" name="categoria" id="categoria">
+                                <option value=""> --- Selecione --- </option>
+                                @foreach (var row in db.Query(selectQueryStringCategoria)) {	
+                                <option value="@row.CodCategoria">@row.Titulo</option>
+                                }
+                                </select>
+ 
+                            </div>
+                            <div class="right">
+                                 <span class="required">*</span> Descrição:<br>
+                                 <textarea style="width: 67%;" rows="3" name="descricao" id="descricao"></textarea>
+                                  <br>
+                                <span class="required"></span> Anotação:<br>
+                                 <textarea style="width: 67%;" rows="4" name="anotacao" id="anotacao"></textarea>
+                                <br>Obs: A anotação não será exibida no site.
+                            </div>
+                        
+                    </div>
+                    </div>
+                        </div>
+                        <div id="payment-address">
+                        <div class="checkout-heading"><span>Passo 2: Detalhes do Produtos</span></div>
+                        <div class="checkout-content">
+
+
+<div class="left">
+          
+        <h2>Valores</h2>
+                                <span class="required">*</span> Preço de Venda:<br>
+                                <input type="text" class="large-field" value="" name="precovenda" id="precovenda">
+                                <br><br>
+                                <span class="required"></span> Valor pago:<br>
+                                <input type="text" class="large-field" value="" name="precocompra" id="precocompra">
+                                <br><br>
+                                  
+                                <span class="required"></span> Valor do Frete:<br>
+                                <input type="text" class="large-field" value="" name="frete" id="frete">
+
+
+                                <br><br>    
+                                <h2>Origem do produto</h2>
+                                <span class="required" style="width: 67%;"></span>Fabricante:<br>
+                                <select class="large-field" name="fabricante" id="fabricante">
+                                <option value="0"> --- Selecione --- </option>
+                                @foreach (var row in db.Query(selectQueryFabricante)) {	
+                                <option value="@row.CodFabricante">@row.Nome</option>
+                                }
+                                </select>
+
+                                <br><br>    
+                                <span class="required"></span> Peso:<br>
+                                <input type="text" class="large-field" value="" name="peso" id="peso">
+
+                      
+                                                         
+                 
+
+                                <br></br>
+   <h2>Promoção &amp; Divulgação do produto</h2>
+
+                                 <span class="required"></span>  Data do inicio das vendas do produto:<br>                               
+                                <input type="text"  class="data" value="" name="dataativacao" id="dataativacao">
+
+                                <br></br>
+       <span class="required"></span>  Data de encerramento das vendas do produto:<br>
+                               
+                                <input type="text"  class="data" value="" name="datadesativacao" id="datadesativacao">
+
+
+
+
+
+                                
+
+
+
+ 
+</div>
+                            
+
+                            <div class="right">
+                            	<h2>Estoque</h2>
+
+                               <span class="required"></span> Quantidade em estoque:<br>
+                                <input type="text" class="large-field" value="" name="estoque" id="estoque">
+
+
+                                <br></br>                             
+                                <span class="required" style="width: 67%;"></span>Limite máximo de compra:<br>
+                                <select class="large-field" name="qtdemaxcompra" id="qtdemaxcompra">
+                                <option value="0"> --- Sem Limite máximo --- </option>
+                                @for(int i = 1; i <= QtdeMaxMin ; i++)
+                                {
+                                <option value="@i">@String.Format(@"{0:00}", i)</option>
+                                }
+                                </select>
+
+
+                                <br></br>
+                                <span class="required" style="width: 67%;"></span>Limite mínimo de compra:<br>
+                                <select class="large-field" name="qtdemincompra" id="qtdemincompra">
+                                <option value="0"> --- Sem Limite mínimo --- </option>
+                                @for(int i = 1; i <= QtdeMaxMin ; i++)
+                                {
+                                <option value="@i">@String.Format(@"{0:00}", i)</option>
+                                }
+                                </select>
+
+ <br><br>
+<h2>Outros detalhes</h2>
+  
+                                <input type="checkbox" checked="checked" id="produtoativo" value="true" name="produtoativo">
+                                <label for="produtoativo">Ativar imediatamente o produto na loja após o cadastro</label>    
+
+                                <br><br>
+                                <input type="checkbox"  id="destaque" value="true" name="destaque">
+                                <label for="destaque">Produto em destaque</label>  
+                                <br><br>    
+                                <span class="required"></span> Tag:<br>
+                                <textarea style="width: 67%;" rows="8" name="tag" id="tag"></textarea>
+
+
+
+						    </div>
+                    </div>
+                            </div>
+                    <div id="shipping-address">
+                        <div class="checkout-heading">Passo 3: Imagens do Produtos</div>
+                        <div class="checkout-content">
+ 
+<!-------------teste imagem-->  
+                            
+               <h3>Imagem Principal</h3>            
+                                                      
+            <article class="styled">
+                <input type="file" name="imagefile1" onchange="previewImage(this,[256,64],4);" />
+                <div class="imagePreview"></div>
+            </article>                         
+                            
+ 
+                           
+	<table style="width: 100%;">
+		<tbody>
+			<tr>
+				<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 02</h3>                       
+                    <input type="file" name="imagefile2" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 03</h3>                       
+                    <input type="file" name="imagefile3" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 04</h3>                       
+                    <input type="file" name="imagefile4" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+			</tr>
+        	<tr>
+				<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 05</h3>                       
+                    <input type="file" name="imagefile5" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 06</h3>                       
+                    <input type="file" name="imagefile6" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+                	<td style="width: 33%;">
+                    <article class="styled">
+                     <h3>Imagem 07</h3>                       
+                    <input type="file" name="imagefile7" onchange="previewImage(this,[128],4);" />
+                    <div class="imagePreview"></div>
+                    </article>  
+                </td>
+			</tr>
+		</tbody>
+	</table>
+</p>
+                            
+                            
+
+
+<!----------Imagens fim-->
+
+
+
+                        
+                    </div>
+     <br><br>
+<div class="right">
+                          
+                          	
+        <input type="submit" class="button" id="button-confirm" value="Cadastrar Produto">
+                      		</div>
+
+            
+               
+                </div>
+
+
+
+                      
+
+
+                <!--Checkout End--> 
+  			</form>
+            </div>
+  		</section>  
+	</div>
+  	<!--Middle Part End-->
+    
+  	<!--Footer Part Start-->
+		 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+
+
+  
+
+ <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+  
+  <script>
+  $(document).ready(function() {
+    $(".data").datepicker({
+	dateFormat: 'dd/mm/yy',
+	dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'],
+	dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+	dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+	monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+	monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+	nextText: 'Próximo',
+	prevText: 'Anterior'
+});
+  });
+  </script>
+
+
+
+
+
+
+   
+<!----------------xxxxxxx-->
+
+
+
+
+<!-- JS Part End-->
+
+</body>
+</html>

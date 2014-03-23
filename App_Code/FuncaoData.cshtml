@@ -1,0 +1,195 @@
+﻿@functions {
+ public static int IdadeAtual (DateTime dataNascimento)   
+{
+DateTime Today = DateTime.Today;
+
+int anos = Today.Year - dataNascimento.Year;
+// Subtrai o ano se o aniversario ainda nao ocorreu
+if (Today.Month < dataNascimento.Month ||  ( Today.Month == dataNascimento.Month && Today.Day < dataNascimento.Day )  )
+{
+anos --;
+}
+return anos;
+}
+
+
+public static int DiasProximoAniversario(DateTime dataNascimento)
+{
+DateTime hoje = DateTime.Today;
+DateTime proximo = new DateTime(hoje.Year, dataNascimento.Month, dataNascimento.Day);
+// Inclui um ano se o aniversario ja ocorreu
+if (proximo < hoje)
+{
+    proximo = proximo.AddYears(1);
+}
+int dias = (proximo - hoje).Days;
+return dias;
+}
+
+
+
+
+public static int DiasVencidos (DateTime dataVencimento)
+{
+DateTime Hoje = DateTime.Today;
+int DiasAtrasado;
+if (dataVencimento < Hoje)    
+{
+DiasAtrasado = (Hoje - dataVencimento).Days;
+}else{
+DiasAtrasado = 0;
+}
+return DiasAtrasado;
+}
+
+
+
+//-----------
+
+public static string Escrever_MesExtenso (int Mes)   
+{
+var MesExtenso ="";
+if (Mes == 1)
+{MesExtenso = "Janeiro";}
+else if (Mes == 2)
+{MesExtenso = "Fevereiro";}
+else if (Mes == 3)
+{MesExtenso = "Março";}
+else if (Mes == 4)
+{MesExtenso = "Abril";}
+else if (Mes == 5)
+{MesExtenso = "Maio";}
+else if (Mes == 6)
+{MesExtenso = "Junho";}
+else if (Mes == 7)
+{MesExtenso = "Julho";}
+else if (Mes == 8)
+{MesExtenso = "Agosto";}
+else if (Mes == 9)
+{MesExtenso = "Setembro";}
+else if (Mes == 10)
+{MesExtenso = "Outubro";}
+else if (Mes == 11)
+{MesExtenso = "Novembro";}
+else if (Mes == 12)
+{MesExtenso = "Dezembro";}
+ else if (Mes == 13)
+{MesExtenso = "Janeiro";} 
+ else if (Mes == 0)
+{MesExtenso = "Dezembro";} 
+
+
+return MesExtenso;
+
+}
+
+
+
+public static int Contar_Eventos_Inicio (DateTime DataX)
+{
+//var xx = "'03/01/2013'";
+var db = Database.Open("StarterSite");
+var row = db.QuerySingle("SELECT COUNT(Data_Inicio) AS QTD FROM Calendario WHERE Data_Inicio = '"+ DataX.Month + "/" + DataX.Day +"/" + DataX.Year+ "'");
+int Resultado = row.QTD;  
+
+return Resultado;
+
+
+}
+
+public static int Contar_Eventos_Final (DateTime DataX)
+{
+//var xx = "'03/01/2013'";
+var db = Database.Open("StarterSite");
+var row = db.QuerySingle("SELECT COUNT(Data_Inicio) AS QTD FROM Calendario WHERE Data_Final = '"+ DataX.Month + "/" + DataX.Day +"/" + DataX.Year+ "'");
+int Resultado = row.QTD;  
+
+return Resultado;
+
+
+}
+
+
+
+
+public static string Tempo_Corrido (DateTime datax)
+{
+
+/*
+DateTime Hoje = DateTime.Today;
+int DiasAtrasado;
+int Minutos;
+
+if (datax < Hoje)    
+{
+
+Minutos = (Hoje - datax).Minutes;
+
+
+}else{
+Minutos = 0;
+}
+return Minutos;
+
+*/
+
+
+DateTime Hoje = DateTime.Now;
+TimeSpan tempoPercorrido;
+int Dias_Corridos;
+int Horas_Corridas;
+int Minutos_Corridos;
+
+//DateTime horaChegada = DateTime.Parse(textBox1.Text);
+//DateTime horaSaida = DateTime.Parse(textBox2.Text);
+//TimeSpan tempoPercorrido;
+
+tempoPercorrido = Hoje.Subtract(datax);
+
+
+Dias_Corridos = tempoPercorrido.Days;
+Horas_Corridas = tempoPercorrido.Hours;
+Minutos_Corridos = tempoPercorrido.Minutes;
+
+if (Dias_Corridos>0){    
+
+return Dias_Corridos.ToString()+" dias atrás";
+}
+
+else if (Horas_Corridas>0){
+    
+return Horas_Corridas.ToString()+" horas atrás";
+
+}
+else
+{
+    
+return Minutos_Corridos.ToString()+" Minutos atrás";
+}
+
+
+}
+
+
+
+public static DateTime Data_AdicionarDias (string datax, int QdDias)
+{
+//datax = String.Format("{0:dd MMM yyyy}", datax);
+var DataT = Convert.ToDateTime(datax);
+var DataF = DataT.AddDays(QdDias);
+
+return DataF;
+
+
+
+
+}
+
+
+
+
+
+
+
+}
+

@@ -1,0 +1,575 @@
+﻿@{
+    
+
+
+    var usuarioAtual = WebSecurity.CurrentUserId;
+    var db = Database.Open("CeliaJoias");
+
+    //Opção de envio
+    bool copiaEmail = true; 
+
+    //Informações sobre o usuário
+    var Nome = "";
+    var Email = "";
+    var DataCadastro = "";
+    var DataTrocaSenha = "";
+    var CPFCNPJ = "";
+    var endereco = "";
+    var complemento = "";
+    var bairro = "";
+    var cidade = "";
+    var estado = "";
+    var pais = "";
+    var cep = "";
+
+    //Endereço Padrão
+    var CadLogradouro = "";    
+    var CadComplemento = "";
+    var CadBairro = "";
+    var CadCidade = "";
+    var CadEstado = "";
+    var CadCep = "";
+    var CadPais = "";
+
+    var numero = "";
+
+    var EnderecoPadrao = "";
+
+    var DataPedido = DateTime.Now;
+    // select * from UserProfile where UserId = 1
+    //webpages_Membership
+
+    foreach (var row in db.Query("select * from UserProfile where UserId = " + usuarioAtual)) 
+        {	
+        Nome = row.Nome;
+        Email = row.Email;
+        CadLogradouro = row.Logradouro;
+        CadComplemento = row.Complemento;        
+        CadBairro = row.Bairro;
+        CadCidade = row.Cidade;
+        CadEstado = row.Estado;
+        CadCep = row.Cep;
+        CadPais = row.Pais;
+        }
+    foreach (var row in db.Query("select * from webpages_Membership where UserId = " + usuarioAtual)) 
+        {	
+        DataCadastro =  String.Format("{0:dd/MM/yyyy}", row.CreateDate);
+        DataTrocaSenha = String.Format("{0:dd/MM/yyyy}", row.PasswordChangedDate);
+        if (DataCadastro == DataTrocaSenha )
+            {
+                DataTrocaSenha = "Sem alteração desde a criação da conta";  
+            }
+        }
+
+    decimal TxEntrega = FuncaoEntrega.CalculoFrete();
+
+
+
+    //---------------------------------------------------------------------
+    if (!WebSecurity.IsAuthenticated)
+    {
+        string UrlAtual = Request.Url.ToString();
+        Response.Redirect("~/Conta/");
+        //Response.Redirect("~/Conta/?sender=" + UrlAtual);
+    }
+
+
+
+    // Redireciona para Carrinho.cshtml se não existir na Session
+    if (Session["carrinho"] == null)
+    {
+       Response.Redirect("Carrinho");
+    }
+
+    // Pega o carrinho atual da sessão
+    Carrinho carrinho = (Carrinho)Session["carrinho"];
+
+    // Redireciona para carrinho.cshtml se não existir itens
+    if(carrinho.Itens.Count() == 0)
+    {
+        Response.Redirect("~/carrinho");
+    }
+    //---------POST------------------------------------------------------------------------------
+    if (IsPost)
+    {
+        endereco = Request["endereco"];
+        numero = Request["numero"];
+        complemento = Request["complemento"];
+        cidade = Request["cidade"];
+        bairro = Request["bairro"];
+        estado = Request["estado"];
+        carrinho.DefinirUF_Entrega(estado);
+
+        cep = Request["cep"];
+        pais = Request["pais"];
+
+
+//         if (Request["definirufentrega"] != null)
+//    {
+//        var uf = Request["definirufentrega"];
+//        carrinho.DefinirUF_Entrega(uf);
+//    }
+
+
+
+        EnderecoPadrao = Request["SelEnderecoCadastro"];
+
+        if(EnderecoPadrao == "1")
+        {       
+            endereco = CadLogradouro;
+            bairro = CadBairro;
+            complemento = CadComplemento;
+            cidade = CadCidade;
+            estado = CadEstado;
+            cep = CadCep;
+            pais = CadPais;
+        }
+
+    
+    
+        // valida os detalhes do endereço da remessa
+        if (endereco.IsEmpty()) 
+        {
+            ModelState.AddError("endereco", "O endereço é obrigatório.");
+        }
+
+        if(EnderecoPadrao != "1")
+        {
+         if (numero.IsEmpty()) 
+        {
+            ModelState.AddError("numero", "O numero do logradouro é obrigatória.");
+        }
+        }
+
+
+        if (cidade.IsEmpty()) 
+        {
+            ModelState.AddError("cidade", "A cidade é obrigatória.");
+        }
+        if (estado.IsEmpty()) 
+        {
+            ModelState.AddError("estado", "O estado é obrigatório.");
+        }
+        if (bairro.IsEmpty())
+        {
+            ModelState.AddError("bairro", "O bairro é obrigatório.");
+        }  
+  
+    
+        if(ModelState.IsValid)
+        {
+
+        endereco = endereco + " " + numero;
+
+          // salva pedido
+            var UsuarioID = WebSecurity.GetUserId(WebSecurity.CurrentUserName);
+          //  var db = Database.Open("TecnoSite");
+        
+          var pedidoSQL = "INSERT INTO Pedidos (CodUsuario, pedidoEnviado, pedidoTotal, " +
+          "pedidoDataHora, logradouro, cidade, uf, pais, cep, complemento) VALUES ( @0, @1, @2, @3, @4, @5, @6, @7, @8, @9)";
+        
+          db.Execute(pedidoSQL,UsuarioID,false,carrinho.ValorTotal,DataPedido,endereco,cidade,estado,pais,cep, complemento);
+        
+          var pedidoId = db.GetLastInsertId();
+        
+          foreach(var item in carrinho.Itens)
+          {
+                pedidoSQL = "INSERT INTO PedidoItens (CodPedido, CodProduto, preco, descricao) VALUES (@0, @1, @2, @3)";
+                db.Execute(pedidoSQL, pedidoId, item.ProdutoID,  item.Preco, item.Descricao);
+          }
+        
+        
+          //Corpo da Mensagem
+
+             if(complemento != ""){complemento = "<br />Complemento:" + complemento;}
+
+            var Corpo = "<table style='width: 520px; margin-left: auto; margin-right: auto; border: 1px solid #e4e2e2;'> <tbody>  <tr>   <td><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'><img src='http://www.celiajoias.com/image/logo.png' /></span></span>   </td>  </tr>  <tr>   <td style='background-color: #f6f3f3;'>    <table style='width: 500px; margin-left: auto; margin-right: auto;'>     <tbody>      <tr>       <td>        <p>&nbsp;</p>        <p style='text-align: justify;'>Prezado(a) " ;
+            Corpo += FuncaoUsuarios.NomeComepleto_PeloCod(UsuarioID) +",</p> <p style='text-align: justify;'>Obrigado por comprar no CeliaJoias.com<br />Recebemos seu pedido feito em <strong>";
+            Corpo += DataPedido +"</strong>.</p><h2 style='text-align: justify;'> Nº do pedido:<br />";
+            Corpo += String.Format("{0:000000}", pedidoId) +"</h2>        <p style='text-align: justify;'>O prazo de entrega será em até 03 dia(s) útil(eis) após a confirmação do pagamento.</p>        <p style='text-align: justify;'>Para sua segurança, se houver qualquer divergência de informações cadastrais, endereço de entrega e de pagamento, entraremos em contato para confirmar os dados antes de enviar os produtos.</p>        <p style='text-align: justify;'>Enviaremos um novo e-mail a cada evolução no andamento do seu pedido. Caso prefira, você pode acompanhar também pelo site.</p><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'></span></span>       </td>      </tr>      <tr>       <td>        <p>&nbsp;</p>       </td>      </tr>     </tbody>    </table>   </td>  </tr>  <tr>   <td><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'></span></span> </span>    <table align='center' style='width: 100%;'>     <tbody>      <tr>       <td>        <p>&nbsp;</p>       </td>      </tr>      <tr>       <td>        <p><strong>Resumo do Pedido:</strong>        </p>        <table align='center' style='width: 100%;'>         <tbody>          <tr>           <td>Produto</td>           <td>Qtde</td>           <td>Preço</td>           <td>Total</td>          </tr>";
+            foreach(var item in carrinho.Itens)
+            {
+              Corpo += " <tr> <td>" + FuncaoProdutos.Produto_Titulo(item.ProdutoID) +"</td>           <td>1</td>           <td>" +  String.Format("{0:C}", item.Preco) +"</td>           <td>" +  String.Format("{0:C}", item.Preco) + "</td>          </tr>";
+            }
+             Corpo += "<tr>           <td colspan='3'>            <hr />           </td>           <td>            <hr />           </td>          </tr>          <tr>           <td colspan='3'>Sub-Total:</td>           <td>";
+             Corpo +=  String.Format("{0:C}", carrinho.ValorTotal) +"</td>          </tr>          <tr>           <td colspan='3'>Descontos:</td>           <td>R$ 0,00</td>          </tr>          <tr>           <td colspan='3'>Despesa c/ Entrega:</td>           <td>R$ 0,00</td>          </tr>          <tr>           <td colspan='3'>Total:</td>           <td>" + String.Format("{0:C}", carrinho.ValorTotal) + "</td>          </tr>         </tbody>        </table>        <p>&nbsp;</p>       </td>      </tr>      <tr>       <td><strong>Endereço de Entrega:</strong><br /> Logradouro: ";
+             Corpo += endereco + complemento + "<br /> Bairro: " + bairro + "<br /> Cidade: "  + cidade + "<br />CEP:" + cep + " Estado:" + estado +  "</td>      </tr>     </tbody>    </table><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'><br /></span></span>   </td>  </tr>  <tr>   <td style='background-color: #f6f3f3;'><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'></span></span> </span>    <table align='center' style='width: 500px;'>     <tbody>      <tr>       <td>        <p><strong>IMPORTANTE:</strong>        </p>        <p><strong>Aprovação da compra</strong>        </p>        <ul>         <li>Caso a aprovação do pagamento pela instituição financeira ocorra após às 20h, a data de entrega será acrescida mais 1 dia útil.</li>        </ul>        <p><strong>Alteração de pedido</strong>        </p>        <ul>         <li>A partir deste momento não é possível a inclusão ou exclusão de itens no pedido.</li>        </ul>        <p><strong>Sobre a entrega</strong>        </p>        <ul>         <li>Se houver diferença de prazos para cada item, a entrega será feita parcialmente, conforme disponibilidade e os prazos específicos.</li>         <li>Caso a entrega tenha sido agendada, aguarde o recebimento do produto na data e turno informados.</li>        </ul>        <p>Se houver dúvidas em relação ao seu pedido, acesse aqui e fale conosco.</p>        <p>Agradecemos por escolher a CéliaJóias.com. Esperamos ter você sempre como nosso cliente.</p>       </td>      </tr>     </tbody>    </table><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'></span></span>   </td>  </tr>  <tr>   <td style='background-color: #604261;'>    <table align='center' style='width: 500px;'>     <tbody>      <tr>       <td>        <p style='text-align: right;'><span style='color: #ffffff;'><strong>&nbsp;</strong></span>        </p>        <p style='text-align: right;'><span style='color: #ffffff;'>Atenciosamente,</span>        </p>        <p style='text-align: right;'><span style='color: #ffffff;'>Célia Jóias.com</span><br /><a href='http://www.CeliaJoias.com' target='_blank'><span style='color: #ffff00;'><span style='color: #ffff00;'>www.CeliaJoias.com</span></span></a>        </p>        <p style='text-align: right;'><span style='color: #ffffff;'><strong>&nbsp;</strong></span>        </p>       </td>      </tr>     </tbody>     </table>   </td>  </tr> </tbody></table>";
+        
+
+
+
+            // Envia email de confirmação        
+            WebMail.Send(to: WebSecurity.CurrentUserName,subject: "Célia Jóias - Confirmação de Pedido",
+            body: Corpo);
+
+            // Envia email avisando os administradores do site
+            var corpoAdmin = "<table style='font-family: Tahoma, Helvetica, Arial, sans-serif;'>  <tbody>   <tr>    <td>     <h1>Aviso do Sistema!</h1>    </td>    <td></td>   </tr>   <tr>    <td>Pedido n.º:</td>    <td>" + String.Format("{0:000000}", pedidoId) +"</td>   </tr>   <tr>    <td>Data do Pedido:</td>    <td>" + DataPedido +"</td>   </tr>   <tr>    <td>Cliente:</td>    <td>" +  FuncaoUsuarios.NomeComepleto_PeloCod(UsuarioID) +"&nbsp;</td>   </tr>  </tbody> </table> <p><span style='color: #ff0000;'><strong>Nota:</strong>&nbsp;Segue abaixo cópia do email de confirmação do pedido enviado ao cliente.</span> </p> <hr />";
+            if(copiaEmail)
+            {
+                corpoAdmin += Corpo;
+            }
+            WebMail.Send(to: "contato@celiajoias.com",subject: "Célia Jóias - Aviso de Pedido",
+            body: corpoAdmin);
+
+            // limpa o carrinho
+            carrinho.Limpar();
+            Response.Redirect("~/pedidoconcluido");
+       }
+    }
+}
+
+
+
+
+
+<script type="text/javascript">
+    function exibe(id) {
+        if (id == '2') {
+            document.getElementById('DivEnderecoEntrega').style.display = "inline";
+        }
+        else {
+            document.getElementById('DivEnderecoEntrega').style.display = "none";
+        }
+    }
+
+
+    function atualizacep(cep) {
+        cep = cep.replace(/\D/g, "")
+        url = "http://cep.correiocontrol.com.br/" + cep + ".js"
+        s = document.createElement('script')
+        s.setAttribute('charset', 'utf-8')
+        s.src = url
+        document.querySelector('head').appendChild(s)
+    }
+
+    function correiocontrolcep(valor) {
+        if (valor.erro) {
+            alert('Cep não encontrado');
+            return;
+        };
+        document.getElementById('endereco').value = valor.logradouro
+        document.getElementById('bairro').value = valor.bairro
+        document.getElementById('cidade').value = valor.localidade
+        document.getElementById('estado').value = valor.uf
+
+        // enviar UF por aqui
+      //  atualizarEstadoEntrega(valor.uf);
+    }
+
+    function atualizarEstadoEntrega(uf) {
+     
+  //      document.getElementById('definirufentrega').value = uf;
+  //      document.formulario01.submit();
+
+  //      alert(uf);
+
+
+    }
+
+
+
+
+</script>
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Cadastro de Produto</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+    <style>
+
+
+        /* === Styles === */
+        body {color: #747474;font-family:"Myriad Pro",sans-serif; font-size:14px;}
+        section {margin:20px 0px;}
+        article {margin:40px 20px;}
+
+
+        .content {width:80%;margin:20px auto;}
+        ol {margin-left:40px;}
+        ol li {margin:10px 0px;}
+        ol li strong {color:#0095ea;font-weight:normal;font-size:1.1em;}
+        ol li p {font-style:italic;}
+        .imagePreview{margin-top:10px;}
+        .imagePreview img {margin:10px;}
+        article.styled .imagePreview img {
+            padding:15px;
+            border:2px dashed #ccc;
+            border-radius:10px;
+        }
+        footer {margin:20px 0px;text-align:center;}
+        a{color:#0095ea;text-decoration:none;}
+        a:hover {text-decoration:underline;}
+    </style>
+
+    <script src="/js/html5.image.preview.min.js"></script>
+
+
+</head>
+<body>
+
+
+
+
+
+ @RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+    
+    <!-- Header Part Start-->
+	  @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start--> 
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Finalizar Compra</a> 
+      	</div>
+ 		<!--Breadcrumb End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				
+                <!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a></li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a></li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a></li>
+                    </ul>
+                </div>
+                <!--Social Icons End-->
+
+	<h1>Confirmar Pedido</h1>
+<div class="required">
+
+
+@Html.ValidationMessage("endereco") <br>
+@Html.ValidationMessage("numero") <br>
+@Html.ValidationMessage("bairro") <br>
+@Html.ValidationMessage("cidade") <br>
+@Html.ValidationMessage("estado") <br> <br>
+ </div>
+ <form method="post" action="ConfirmarPedido" name="formulario01" enctype="multipart/form-data">                     
+                <!--Checkout Start--> 
+                    <div id="checkout">
+                        <div class="checkout-heading">Identificação do Comprador</div>
+                       
+                <div class="checkout">
+                        <div class="checkout-content" style="display:block;">
+                                                       
+                        <div class="left">  
+                        <span><b>Nome: </b></span><br>
+                        <p>@Nome</p>
+                        <span><b>Email: </b></span><br>
+                        <p>@Email</p>
+                        </div>
+                        <div class="right">
+                        <span><b>Data da Criação da Conta: </b></span><br>
+                        <p>@DataCadastro</p>
+                        <span><b>Última troca de senha: </b></span><br>
+                        <p>@DataTrocaSenha</p>                                
+                        </div>
+                               
+                        
+                    </div>
+                    </div>
+                        </div>
+                    <div id="payment-address">
+                        <div class="checkout-heading"><span>Endereço de entrega</span></div>
+                        <div class="checkout-content">
+
+
+
+
+                        <div>
+
+
+                        <p class="required">Informe com atenção o endereço de entrega da compra.</p>
+                        <label for="SelEnderecoCadastro">
+                        <input type="radio" checked="checked" id="SelEnderecoCadastro" value="1" name="SelEnderecoCadastro"  onclick="javascript: exibe('1');">
+                        O Endereço de entrega <b>é o mesmo </b>endereço de cadastro
+                        </label>
+                        <br>
+                        <label for="SelEnderecoCadastro2">
+                        <input type="radio" id="SelEnderecoCadastro2" value="2" name="SelEnderecoCadastro"  onclick="javascript: exibe('2');">
+                        O endereço de entrega <b> é diferente</b> do endereço de cadastro, e irei digitar este endereço.
+                        </label>
+                        <p></p>
+                                    
+                        </div>
+                        <div style="clear: both; padding-top: 15px; border-top: 1px solid #DDDDDD;"></div>
+
+                        <div id="DivEnderecoEntrega" style="display: none;">
+                        <div class="left">
+
+                        <div id="company-id-display">
+                        <span class="required" id="company-id-required" style="display: none;"></span> Logradouro: <br>
+                        <input type="text" class="large-field" readonly="on" value="@endereco" name="endereco" id="endereco">
+                        <br><br>
+                        </div>
+
+                        <div id="company-id-display">
+                        <span class="required" id="company-id-required" style="display: none;"> * </span> Numero: <br>
+                        <input type="text" class="small-field" value="@numero" name="numero" id="numero">
+                        <br><br>
+                        </div>
+
+
+                        <div id="company-id-display">
+                        <span class="required" id="company-id-required" style="display: none;">*</span> Complemento:<br>
+                        <input type="text" class="large-field" value="@complemento" name="complemento" id="complemento">
+                        <br><br>
+                        </div>
+
+                        <div id="company-id-display">
+                        <span class="required" id="company-id-required" style="display: none;"></span> Bairro:<br>
+                        <input type="text" class="large-field" readonly="on" value="@bairro" name="bairro" id="bairro">
+                        <br><br>
+                        </div>
+                        <span class="required"></span> Cidade:<br>
+                        <input type="text" class="large-field" readonly="on" value="@cidade" name="cidade" id="cidade">
+                        <br><br>
+
+                        </div>
+
+                        <div class="right">
+                            	
+               
+
+                        <span class="required" id="payment-postcode-required">*</span> CEP:<br>
+                        <input type="text" class="large-field" onblur="atualizacep(this.value)" value="@cep" name="cep" id="cep">
+                        <br><br>
+                        <span class="required"></span> Estado:<br>
+                        <input type="text" class="large-field" readonly="on" value="@estado" name="estado" id="estado">
+                        <br><br>
+
+
+                        <span class="required"></span> Pais:<br>
+                        <input type="text" readonly="on" class="large-field" value="Brasil" name="pais" id="pais">
+                        <br><br>
+            
+                                
+                        </div>
+
+                        </div>
+
+
+
+
+
+
+                    </div>
+                            </div>
+                    <div id="shipping-address">
+                        <div class="checkout-heading">Forma de Pagamento</div>
+                        <div class="checkout-content">
+                            <p class="required"><b>Nota:</b> Após a conclusão do pedido você será redirecionado para uma página de pagamento dentro do pagseguro</p>
+                            <p><img src="image/pagseguro.png" alt="Banner" /></p>
+
+
+                        </div>
+                    </div>
+            
+                	<div class="checkout-product">
+                                <table>
+                                    <tr>
+                                        <td class="model">Produto</td>
+                                        <td class="name">Categoria</td>
+                                        <td class="quantity">Quantidade</td>
+                                        <td class="price">Preço</td>
+                                        <td class="total">Total</td>
+                                    </tr>
+                                    @foreach (var item in carrinho.Itens)
+{
+                                    <tr>
+                                        <td class="model">@FuncaoProdutos.Produto_Titulo(item.ProdutoID)</td>
+                                        <td class="name">@FuncaoProdutos.Produto_Categoria(item.ProdutoID)</td>
+                                        <td class="quantity">1</td>
+                                        <td class="price">@String.Format("{0:C}", FuncaoProdutos.Produto_Preco(item.ProdutoID))</td>
+                                        <td class="total">@String.Format("{0:C}", FuncaoProdutos.Produto_Preco(item.ProdutoID))</td>
+                                    </tr>
+}
+
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Sub-Total:</b></td>
+                                        <td class="total">@String.Format("{0:C}",carrinho.ValorTotal)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Descontos:</b></td>
+                                        <td class="total">0,00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Despesa c/ Entrega:</b></td>
+                                        <td class="total">@String.Format("{0:C}",TxEntrega)</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="price" colspan="4"><b>Total:</b></td>
+                                        <td class="total">@String.Format("{0:C}",carrinho.ValorTotal + TxEntrega)</td>
+                                    </tr>
+                                </table>
+                            </div>
+                
+
+
+
+
+
+                             <div class="buttons">
+                                    <div class="right">
+                                        <input type="submit" class="button" id="button-confirm" value="Confirmar Comprar">
+
+                                       
+
+
+                                    </div>
+                                </div>
+                                
+
+
+                <!--Checkout End--> 
+  			</form>
+       
+  			
+
+ 
+            </div>
+  		</section>  
+	</div>
+  	<!--Middle Part End-->
+    
+  	<!--Footer Part Start-->
+		 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

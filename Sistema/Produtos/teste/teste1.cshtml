@@ -1,0 +1,61 @@
+﻿@{
+    
+
+var db = Database.Open("CeliaJoias");
+
+
+//var SelectPedido = "select MAX (CodPedido) from Pedidos where CodUsuario = 3";
+
+var row1 = db.QuerySingle("select MAX (CodPedido) from Pedidos where CodUsuario = 1");
+int CodUltimoPedido = row1.Column1;  
+
+var SelectPedido = "select * from Pedidos where CodPedido = " + CodUltimoPedido;
+
+var Nome = "";
+var Email = "";
+
+
+
+double valor = 2;
+    
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+    </head>
+    <body>
+@foreach (var row2 in db.Query(SelectPedido)) {	   
+
+
+    foreach (var rowItens in db.Query( "select * from PedidoItens where CodPedido =" + CodUltimoPedido)) {	   
+   
+
+
+       
+                    <text>
+<p> @FuncaoProdutos.Produto_Titulo(rowItens.CodProduto) </p>
+
+
+        <p>@FuncaoPagamento.ConverterValor(String.Format("{0:N}", rowItens.Preco)) </p>
+        <p>@rowItens.Preco</p>
+        <hr>
+
+</text>
+   
+  
+    
+
+
+
+        }
+
+}
+
+       @Facebook.LikeButton("http://celiajoias.com/")   
+        
+    </body>
+</html>

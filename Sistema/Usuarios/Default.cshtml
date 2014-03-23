@@ -1,0 +1,190 @@
+﻿@{
+ 
+  var db = Database.Open("CeliaJoias");
+
+
+
+  var usuarioAIncuir = "";
+  var role = "Admin";
+  if(IsPost)
+  {
+      usuarioAIncuir = Request["usuarioAIncuir"];
+      if(usuarioAIncuir != null)
+      {
+        // Incuir o usuário no perfil admin
+        if (WebSecurity.UserExists(usuarioAIncuir) && !Roles.IsUserInRole(usuarioAIncuir, role))
+        {
+          Roles.AddUsersToRoles(new [] { usuarioAIncuir }.ToArray(),new [] { role }.ToArray());
+        }
+        else
+        {
+          ModelState.AddError("usuarioAIncuir", "Não foi possível incluir usuário como Admin");
+        }
+     }
+     else if (Request["usuarioARemover"] != null)
+     {
+       // Remove usuário
+       var usuarioARemover = Request["usuarioARemover"];
+       if (Roles.IsUserInRole(usuarioARemover, role))
+       {
+          Roles.RemoveUsersFromRoles(new [] { usuarioARemover }.ToArray(),new [] { role }.ToArray());
+       }
+     }
+  }
+  var users = Roles.GetUsersInRole(role);
+
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Adminitradores do Site</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+@RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a>» 
+            <a href="#">Usuários</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+        @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+                
+  				<h1>Usuários Administradores</h1>
+
+
+
+<!----------conteudo teste-->
+
+
+
+
+<!----------conteudo teste final-->
+
+    			<div class="wishlist-info">
+    				<table>
+                    	<thead>
+                            <tr>
+                              <td class="image">Imagem</td>
+                              <td class="name">Nome do Produto</td>
+                              <td class="model">E-mail</td>
+                              
+
+                              <td class="action"></td>
+                            </tr>
+      					</thead>
+                         
+                            <tbody>
+  @foreach (var user in users)
+  {
+                            <tr>
+                            <td class="image">            
+                            <a href="#"><img title="" alt="" src="~/image/avatar.png"></a>
+                            </td>
+                            <td class="name">
+@FuncaoUsuarios.NomeComepleto_Cod(user)
+                            </td>
+                            <td class="model">@user</td>
+                          
+                       
+                            <td class="clear">
+     @{
+       var buttonState = "";
+       var defclass = "";
+       if(user == WebSecurity.CurrentUserName)
+       {
+         buttonState = "disabled=disabled";
+       } else {
+         defclass = "button";  
+       }
+     }
+     <form action="" method="post">
+       @Html.Hidden("usuarioARemover", user)
+       <input type="submit" class="@defclass"  value="Remover" @buttonState />
+
+ 
+     </form>
+
+
+                           </td>
+                            </tr>
+}
+                            </tbody>
+                            
+          			</table>
+
+
+
+
+                    <h2>Incluir Usuário</h2>
+<form action="" method="post">
+  <p>
+    Usuário: @Html.TextBox("usuarioAIncuir", usuarioAIncuir)
+    <input type="submit" class ="button" value="Incluir" />
+    @Html.ValidationMessage("usuarioAIncuir")
+  </p>
+</form>
+
+  				</div>
+ 			
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

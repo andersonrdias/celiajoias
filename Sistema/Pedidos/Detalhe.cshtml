@@ -1,0 +1,316 @@
+﻿@{
+
+  // Pega o CodPedido da URL, ou define para 0 se não localizada
+  var CodPedido = !UrlData[0].IsEmpty() ? UrlData[0] : "0";
+
+
+    if (CodPedido == "0") {
+         Response.Redirect(@Href("~/sistema/pedidos/"));
+     }
+
+
+
+  
+  var db = Database.Open("CeliaJoias");
+
+  if (IsPost)
+  {
+    CodPedido = Request["CodPedido"];
+    var enviado = Request["enviadoconfirmacao"].AsBool();
+    var CodCorreios = Request["codcorreios"];
+    var Anotacoes = Request["anotacoes"];
+
+
+    var sqlUpdate = "UPDATE Pedidos SET PedidoEnviado = @0, CodCorreios = @1, Anotacoes = @2 WHERE CodPedido = @3";
+    db.Execute(sqlUpdate, enviado, CodCorreios, Anotacoes, CodPedido);
+ 
+   Response.Redirect("~/sistema/pedidos/");
+ 
+  }
+  // Pega cabeçaho dos detalhes
+  var sqlCommand = "SELECT Pedidos.*, UserProfile.Email FROM Pedidos " +
+                             "INNER JOIN UserProfile ON Pedidos.CodUsuario = UserProfile.UserId " +
+                             "WHERE CodPedido = @0 ";
+  var _pedido = db.QuerySingle(sqlCommand, CodPedido);
+  // Pega os itens dos pedidos
+  var itemsSql = "SELECT * FROM PedidoItens WHERE CodPedido = @0";
+  var pedidoItens = db.Query(itemsSql, CodPedido);
+
+
+  var SqlUsuario = "Select * From UserProfile where UserId = @0";
+
+
+
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Detalhe do Pedido</title>
+
+
+
+
+<style type="text/css" title="currentStyle">
+			
+</style>
+
+
+
+
+
+		
+<script type="text/javascript" language="javascript" src="~/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="~/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function() {
+	$('#TabProdutos').dataTable();
+} );
+</script>
+
+
+
+
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/sistema/pedidos">Pedido</a>» 
+            <a href="~/">Detalhe</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+     @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  			
+
+                
+  				<h1>Detalhe do Pedidos: @String.Format("{0:0000000}", _pedido.CodPedido)</h1>
+
+      <div class="product-info">
+                    	
+                   		<div class="left">
+            <!--------------------------------------->
+                        <h3>Data do Pedido: @_pedido.pedidoDataHora</h3>
+
+                               <h1>Produtos</h1>
+   <div class="cart-info" style="color: #666666; font-family: Arial, Helvetica, sans-serif; line-height: normal;">
+	<table style="width: 100%; margin-bottom: 15px; border-collapse: collapse;">
+		<thead>
+			<tr>
+				<td class="name" style="font-size: 12px; padding: 10px; color: #666666; font-weight: bold; background-color: #f9f9f9; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;">Nome do Produto</td>
+				<td class="model" style="font-size: 12px; padding: 10px; color: #666666; font-weight: bold; background-color: #f9f9f9; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee;">Categoria</td>
+				<td class="price" style="font-size: 12px; padding: 10px; color: #666666; font-weight: bold; background-color: #f9f9f9; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee; text-align: right;">Valor&nbsp;</td>
+			</tr>
+		</thead>
+		<tbody>
+
+ @foreach (var item in pedidoItens)
+    {
+      
+
+			<tr>
+				<td class="name" style="font-size: 12px; padding: 10px; vertical-align: top; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee; color: #999999;"><a href="~/sistema/produtos/visualizar/@item.CodProduto/" style="color: #392420; cursor: pointer;">@FuncaoProdutos.Produto_Titulo(item.CodProduto)</a>&nbsp;<small><br /></small>
+				</td>
+				<td class="model" style="font-size: 12px; padding: 10px; vertical-align: top; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee; color: #999999;">@FuncaoProdutos.Produto_Categoria(item.CodProduto)</td>
+				<td class="price" style="font-size: 12px; padding: 10px; vertical-align: top; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eeeeee; color: #999999; text-align: right;">@String.Format("{0:C}",item.preco)</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+	<table id="total" style="float: right; color: #666666; font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
+		<tbody>
+			<tr>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;"><b>Sub-Total:</b>
+				</td>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;">@String.Format("{0:C}", _pedido.pedidoTotal)</td>
+			</tr>
+			<tr>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;"><b>Despesa com envio:</b>
+				</td>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;">R$ 0,00</td>
+			</tr>
+			<tr>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;"><b>Descontos</b>
+				</td>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;">R$ 0,00</td>
+			</tr>
+			<tr>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;"><b>Total:</b>
+				</td>
+				<td class="right" style="font-size: 12px; padding: 3px; text-align: right;">@String.Format("{0:C}", _pedido.pedidoTotal)</td>
+			</tr>
+		</tbody>
+	</table>
+</div>                            
+<h1>Envio do Pedido</h1>
+
+   <form action="" method="post" id="shippedForm">
+<span class="required">*</span> Informe o Código dos Correios:<br>
+<input type="text" class="large-field" value="@_pedido.CodCorreios" name="codcorreios" id="codcorreios">
+                    <br>
+                <span class="required"></span> Anotação:<br>
+                    <textarea style="width: 67%;" rows="4" name="anotacoes" id="anotacoes">@_pedido.Anotacoes</textarea>
+                <br>Obs: A anotação não será exibida no site.<br>
+<br>
+<label for="enviadoconfirmacao">Pedido Enviado?</label>    
+<input type="checkbox" @if(_pedido.pedidoEnviado){<text>checked="checked"</text>} id="enviadoconfirmacao" value="true" name="enviadoconfirmacao">
+<br>
+<br>
+
+
+
+
+       @Html.Hidden("CodPedido", _pedido.CodPedido)
+       
+       
+       <input type="submit" value="Atualizar" />
+     </form>
+
+            <!--------------------------------------->
+                        </div>
+                    
+                        <div class="right">
+                                 @foreach (var row in db.Query(SqlUsuario,_pedido.CodUsuario)) {	
+                        	<div class="description">  
+                                <h2>Cliente</h2>                          
+                                <span>Nome:</span>@FuncaoUsuarios.NomeComepleto_Cod(@_pedido.Email)  <br />
+                                <span>Email:</span> @_pedido.Email<br />
+                                <span>Tel. Fixo:</span> @_pedido.Email<br />
+                                <span>Celular:</span> @_pedido.Email<br />
+                                <hr />
+                                <h2>Endereço (Cadastrado)</h2>
+                                <span>Logradouro:</span> @row.logradouro<br />
+                                <span>Complemento:</span> @row.Complemento<br />
+                                <span>Bairro:</span> @row.Bairro<br />                            
+                                <span>Cidade:</span> @row.Cidade<br />  
+                                <span>Estado:</span> @row.Estado<br />  
+                                <span>Pais:</span> @row.Pais<br />  
+                                <span>Cep:</span> @row.Cep<br />  
+                                <hr />
+                                <h2>Endereço de Entrega</h2>
+                                <span>Logradouro:</span> @_pedido.logradouro<br />
+                                <span>Complemento:</span> @_pedido.Complemento<br />
+                                <span>Bairro:</span> @_pedido.Bairro<br />                            
+                                <span>Cidade:</span> @_pedido.Cidade<br />  
+                                <span>Estado:</span> @_pedido.UF<br />  
+                                <span>Pais:</span> @_pedido.Pais<br />  
+                                <span>Cep:</span> @_pedido.Cep<br />  
+                                 
+   
+
+                            </div>
+
+
+
+
+                <br>
+
+                     
+                        }</div>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+    		
+
+
+
+<!-------------fim tabela-->
+
+
+
+
+
+
+
+
+
+
+
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+
+
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+
+
+<!-- JS Part End-->
+
+
+ 
+
+
+
+
+</body>
+</html>

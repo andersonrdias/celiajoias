@@ -1,0 +1,204 @@
+﻿
+
+@{
+    
+if (WebSecurity.IsAuthenticated)
+{
+   Response.Redirect("~/Conta/usuario");
+}
+
+
+// Cria um carrinho vazio na sessão se ele não exitir
+if (Session["carrinho"] == null)
+{
+   Session["carrinho"] = new Carrinho();
+}
+// Pega o carrinho atual da Sessão
+Carrinho carrinho = (Carrinho)Session["carrinho"];
+
+
+
+
+
+
+
+
+
+
+
+
+  var email = "";
+  var senha = "";
+  if(IsPost)
+  {
+    email = Request["email"];
+    senha = Request["senha"];
+    var lembrarme = Request["lembrarme"].AsBool();
+    // Validação
+    if (email.IsEmpty()) {
+        ModelState.AddError("email", "Nome do usuário não pode estar em branco.");
+    }
+    if (senha.IsEmpty()) {
+        ModelState.AddError("senha", "A senha deve ser informada.");
+    }
+    // tenta fazer o login
+    if(ModelState.IsValid)
+    {
+       if(WebSecurity.Login(email, senha, lembrarme))
+       {
+           if (Request.QueryString["sender"] != null)
+           {
+              Response.Redirect(Request.QueryString["sender"]);
+           }
+           else
+           {
+               
+               carrinho.DefinirUF_Entrega(FuncaoEntrega.PesquisarUF(email));
+               Response.Redirect("~/");
+
+            }
+        }
+        else
+        {
+           ModelState.AddFormError("Não foi possível realizar o login.");
+        }
+     }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Conta</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+</head>
+<body>
+
+ @RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+	 @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  
+  	<!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Conta</a> » 
+            <a href="#">Identificação</a>
+      	</div>
+        <!--Breadcrumb End-->
+ 		
+        <!--Left Part Start-->
+		<aside id="column-left">
+    	   @RenderPage("~/Shared/Layout/_CategoriasLateral.cshtml")
+  		</aside>
+		<!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  				<h1>Identificação</h1>
+                <div class="login-content">
+
+                    <div class="left">
+                        <h2>Ja sou cadastrado</h2>
+
+@Html.ValidationSummary(true)
+<form action="@Request.QueryString" method="post" class="contasFormulario">
+<p>
+                   
+                            <div class="content">
+                                <b>E-Mail Address:</b><br>
+                                <input type="text" value="" name="email" id="email">
+                                <br>
+                                <br>
+                                <b>Password:</b><br>
+                                <input type="password" value="" name="senha" id="senha">
+                                <br>
+                                <a href="~/conta/redefinirsenha.cshtml">Esqueci a minha senha</a><br>
+                                <br>
+                                <label class="btn"><input type="submit" class="button" value="Login"></label>
+                            </div>
+                        </form>
+                    </div>
+                        
+                    <div class="right">
+                        <h2>Ainda não sou cadastrado</h2>
+                    <div class="content">
+                            <p><b>Criar uma nova conta</b></p>
+                            <p>Ao criar uma conta, você poderá comprar mais rapidamente, ser atualizado sobre o status de uma compra, e acompanhar os pedidos que você já fez.</p>
+                            <label class="btn"><a class="button" href="~/conta/cadastro">Continue</a></label></div>
+                    </div>
+           		</div>
+  			</div>
+  		</section> 
+         
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

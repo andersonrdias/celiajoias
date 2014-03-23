@@ -1,0 +1,305 @@
+﻿
+    
+
+
+
+@{
+
+var valorPromocao = 500;
+
+
+// Cria um carrinho vazio na sessão se ele não exitir
+if (Session["carrinho"] == null)
+{
+   Session["carrinho"] = new Carrinho();
+}
+// Pega o carrinho atual da Sessão
+Carrinho carrinho = (Carrinho)Session["carrinho"];
+
+
+
+if (IsPost)
+{
+    if (Request["produtoID"] != null)
+    {
+       //formulário postado pela página Detalhes do produto 
+       var _produtoID = Request["produtoID"];
+       var _descricao = Request["descricao"];
+       var _preco = Request["preco"];
+       carrinho.AdicionarItem(_produtoID.AsInt(), _descricao, _preco.AsDecimal());
+    }
+    else if (Request["removerIndice"] != null)
+    {
+        // Formulario postado pelo botão Remover Item do Carrinho
+        var removerIndice = Request["removerIndice"].AsInt();
+        carrinho.RemoverItem(removerIndice);
+    }
+    
+}
+
+
+
+
+
+ int i = 0;
+
+ decimal TxEntrega = FuncaoEntrega.CalculoFrete();
+
+
+
+
+
+}
+    
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Carrinho</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+</head>
+<body>
+
+        
+
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+    
+	<!-- Header Part Start-->
+	@RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  	
+    <!--Middle Part Start-->
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Carrinho</a>
+      	</div>
+ 		<!--Breadcrumb End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+               
+                
+
+                 
+  				<h1>Carrinho de Compra</h1> 
+                
+                
+                
+@if(carrinho.Itens.Count() == 0)
+{                
+    <p>Não existe nenhum item no seu carrinho de compras.</p><br></br>
+} else {                               
+                <form enctype="multipart/form-data" method="post" action="#">
+                    <div class="cart-info">
+                        <table>
+                        	<thead>
+                                <tr>
+                                    <td class="image">Imagem</td>
+                                    <td class="name">Nome do Produto</td>
+                                    <td class="model">Categoria</td>
+                                    <td class="quantity">Quantidade</td>
+                                    <td class="price">Valor unitário</td>
+                                    <td class="total">Total</td>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+
+                                @foreach (var item in carrinho.Itens)
+    {
+                                <tr>
+                                    <td class="image">
+                                        <a href="~/produto/@item.ProdutoID"><img title="@FuncaoProdutos.Produto_Titulo(item.ProdutoID)" alt="@FuncaoProdutos.Produto_Titulo(item.ProdutoID)" src="~/image/produtos/mini_@FuncaoProdutos.Produto_Imagem(item.ProdutoID)"></a>
+                                    </td>
+                                    <td class="name">
+                                        <a href="~/produto/@item.ProdutoID">@FuncaoProdutos.Produto_Titulo(item.ProdutoID)</a>  <br>          
+                                        <small>Reward Points: 600</small>
+                                    </td>
+                                    <td class="model">@FuncaoProdutos.Produto_Categoria(item.ProdutoID)</td>
+                                    <td class="quantity">
+                                <form>       
+                                        <input type="text" size="1" value="1" name="quantity[43]">
+                                        &nbsp;
+
+                                        <input type="image" title="Update" alt="Update" src="~/image/update.png">
+                                        &nbsp;
+                                        
+                                      </form>  
+
+                                       
+            <form action="Carrinho" method="post">
+              <input type="hidden" value="@i" id="removerIndice" name="removerIndice" />             
+                <input type="image" src="~/image/remove.png" value="ENVIAR" alt="botão enviar com efeito aqua" />
+            </form>
+
+                                    
+                                    
+                                    
+                                     <td class="price">@String.Format("{0:C}", FuncaoProdutos.Produto_Preco(item.ProdutoID))</td>
+                                    <td class="total">@String.Format("{0:C}", FuncaoProdutos.Produto_Preco(item.ProdutoID))</td>
+
+
+
+
+
+                                </tr>
+
+ //incrementa o indice
+      i++;
+
+}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+}                
+        	
+              
+                <div class="cart-module">
+                
+                	<div class="accordion">
+                    	<div class="accordion-heading">Cupom de Desconto</div>
+                        <div class="accordion-content">
+                        	<div class="content" id="coupon">
+                                <form enctype="multipart/form-data" method="post" action="#">
+                                    Informe o cupom de desconto:&nbsp;
+                                    <input type="text" value="" name="coupon">
+                                    <input type="hidden" value="coupon" name="next">
+                                    &nbsp;
+                                    <label class="btn"><input type="submit" class="button" value="Validar   "></label>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion">
+                    	<div class="accordion-heading">Promoção</div>
+                        <div class="accordion-content">
+                        	<div class="content" id="voucher">
+                              @if(carrinho.ValorTotal >= valorPromocao){<text>
+  <div class="cart-info">
+                        <table>
+                        	<thead>
+                                <tr>
+                                    <td class="image">Imagem</td>
+                                    <td class="name">Nome do Produto</td>
+                                    <td class="model">Categoria</td>
+                                    <td class="quantity">Sexo</td>
+                                    <td class="price">Valor unitário</td>
+                                    <td class="total">Total</td>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>  
+                                <tr>
+                                    <td class="image">
+                                         <a href=""><img title="Pingente Menino ou Menina" alt="Pingente Menino ou Menina" width="50" height="50" src="~/image/promo/Pingente-de-Menino-e-Menina.jpg"></a>
+                                    </td>
+                                    <td class="name">
+                                        Pingente em Ouro 18K (Menino ou Menina)  <br>          
+                                        <small></small>
+                                    </td>
+                                    <td class="model">Pingente (Promocional)</td>
+                                    <td class="quantity"> 1 </td>
+                                         <td class="price">Grátis</td>
+                                    <td class="total">Grátis</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                                </text>} else {<text>
+                                <p>Brindes nas compras acima de R$ 500,00<p>
+</text>}
+   
+       
+      
+                                
+                                
+                                
+                             </div>
+                        </div>
+                    </div>
+                    
+                   
+                	
+                </div>                
+                <div class="cart-total">
+                    <table id="total">
+                    	<tr>
+                        	<td class="right"><b>Sub-Total:</b></td>
+                        	<td class="right"> @String.Format("{0:C}", carrinho.ValorTotal)</td>
+                      	</tr>
+
+                        <tr>
+                        	<td class="right"><b>Descontos</b></td>
+                        	<td class="right">R$ 0,00</td>
+                      	</tr>
+                        <tr>
+                        	<td class="right"><b>Despesa com envio:</b></td>
+                        	<td class="right">@String.Format("{0:C}",TxEntrega)</td>
+                      	</tr>
+                        <tr>
+                        	<td class="right"><b>Total:</b></td>
+                        	<td class="right">@String.Format("{0:C}", carrinho.ValorTotal + TxEntrega)</td>
+                      	</tr>
+                  	</table>
+                  </div>                
+              
+                <div class="buttons">
+                    @if(carrinho.Itens.Count() > 0)
+{
+    				<div class="right">
+                    	<label class="btn"><a class="button" href="~/confirmarpedido">Confirmar Pedido</a></label>
+                    </div>
+  }  				
+                    <div class="center">
+                    	<label class="btn"><a class="button"  href="#">Continuar na Loja</a></label>
+                   	</div>
+  				</div>
+  			</div>
+  		</section>  
+	</div>
+  	<!--Middle Part End-->
+    
+    <!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

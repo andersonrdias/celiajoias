@@ -1,0 +1,81 @@
+﻿@{
+
+var email = "";
+var senha1 = "";
+var senha2 = "";
+
+string password1; 
+string password2;
+
+
+
+
+
+if(IsPost)
+{
+    WebSecurity.Logout();
+    email = Request["email"];
+    password1 = Request["senha1"];
+    password2 = Request["senha2"];
+    // Validação
+    if (email.IsEmpty()) 
+    {
+        ModelState.AddError("email", "O Email é requerido.");
+    }
+
+    
+    //if (!Validation.IsValidEmail(email))
+    if (!Validacao.IsValidEmail(email))
+    {
+        ModelState.AddError("email", "Endereço de Email inválido.");
+    }
+    if (senha1.IsEmpty()) 
+    {
+        ModelState.AddError("senha1", "A senha é obrigatória.");
+    }
+    if(WebSecurity.UserExists(email))
+    {
+        ModelState.AddError("email", "Já existe uma conta com este nome.");
+    }
+    if(senha1 != senha2)
+    {
+        ModelState.AddError("senha1", "As senhas não conferem.");
+    }
+    // Cria uma Conta
+    if(ModelState.IsValid)
+    {
+        WebSecurity.CreateUserAndAccount(email, senha1, null, false);
+        WebSecurity.Login(email, senha1);
+        if (Request.QueryString["sender"] != null)
+        {
+            // Retorna o usuário para a URL enviada na chave “sender” da QueryString
+            Response.Redirect(Request.QueryString["sender"]);
+        }
+        else
+        {
+            // Retorna o usuário para a home page
+            Response.Redirect("~/Default");
+        }
+    }
+   }
+}
+<h1>Registrar Nova Conta</h1>
+<form action="teste" method="post" class="contaFormulario">
+<p>
+@Html.Label("Endereço de Email: ", "email")<br />
+@Html.TextBox("email", email)
+@Html.ValidationMessage("email")
+</p>
+<p>
+@Html.Label("Senha: ", "senha1")<br />
+@Html.Password("senha1", senha1)
+@Html.ValidationMessage("senha1")
+</p>
+<p>
+@Html.Label("Confirmar a Senha: ", "senha2")<br />
+@Html.Password("senha2", senha2)
+</p>
+<p>
+<input type="submit" value="Registrar" />
+</p>
+</form>

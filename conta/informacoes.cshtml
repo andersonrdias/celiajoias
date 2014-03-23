@@ -1,0 +1,132 @@
+﻿@{
+    
+
+if (!WebSecurity.IsAuthenticated)
+{
+   Response.Redirect("~/Conta/");
+}
+
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Conta</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Jewellery Online Store" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+</head>
+<body>
+
+ @RenderPage("~/Shared/Layout/_Top.cshtml")
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+	 @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+  
+  	<!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Conta</a> » 
+            <a href="#">Identificação</a>
+      	</div>
+        <!--Breadcrumb End-->
+ 		
+        <!--Left Part Start-->
+		<aside id="column-left">
+    		<div class="box">
+  				<div class="box-heading">Account</div>
+  				<div class="box-category">
+    				<ul>
+            			<li><a href="login.html">Login</a> / <a href="register.html">Register</a></li>
+                        <li><a href="#">Forgotten Password</a></li>
+                        <li><a href="#">My Account</a></li>
+                        <li><a href="#">Address Books</a></li>
+                        <li><a href="#">Wish List</a></li>
+                        <li><a href="#">Order History</a></li>
+                        <li><a href="#">Downloads</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Transactions</a></li>
+                        <li><a href="#">Newsletter</a></li>
+          			</ul>
+              	</div>
+            </div>
+  		</aside>
+		<!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">
+				<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  				<h1>Informações sobre Conta</h1>
+                <div class="login-content">
+
+                    <div class="left">
+                        <h2>Ja sou cadastrado</h2>
+                      <form enctype="multipart/form-data" method="post" action="#">
+                            <div class="content">
+                                <b>E-Mail Address:</b><br>
+                                <input type="text" value="" name="email">
+                                <br>
+                                <br>
+                                <b>Password:</b><br>
+                                <input type="password" value="" name="password">
+                                <br>
+                                <a href="#">Esqueci a minha senha</a><br>
+                                <br>
+                                <label class="btn"><input type="submit" class="button" value="Login"></label>
+                            </div>
+                        </form>
+                    </div>
+                        
+                    <div class="right">
+                        <h2>Ainda não sou cadastrado</h2>
+                    <div class="content">
+                            <p><b>Criar uma nova conta</b></p>
+                            <p>Ao criar uma conta, você poderá comprar mais rapidamente, ser atualizado sobre o status de uma compra, e acompanhar os pedidos que você já fez.</p>
+                            <label class="btn"><a class="button" href="~/conta/cadastro">Continue</a></label></div>
+                    </div>
+           		</div>
+  			</div>
+  		</section> 
+         
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

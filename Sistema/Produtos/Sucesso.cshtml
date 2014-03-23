@@ -1,0 +1,136 @@
+﻿@{
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Relação de Produtos</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/sistema/produtos/">Relação de Produtos</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+          @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+
+ <script type="text/javascript">
+<!--
+ var numero = 10;
+ function chamar(){if(numero>0){document.getElementById('timers').innerHTML = --numero +' segundos';}}
+setInterval("chamar();", 1000);
+setTimeout("document.location = '/sistema/produtos/';",10000);
+//-->
+</script>
+
+
+                
+  				<h1>Produto cadastrado com sucesso!</h1>
+    			<div class="wishlist-info">
+
+
+                        <div class="checkout-content" style="display:block;">
+                            <div class="left">
+                                <h2>Redirecionamento</h2><br>
+                                <p>Você será redirecionado para a página de Produtos em poucos instantes:</p>
+   
+                        <h2>     <div id="timers">10 segundos</div>   </h2>
+    
+
+
+
+
+                               
+
+
+
+
+
+                            </div>
+                            <div class="right">
+                                <h2>Nova tarefa</h2><br>
+                                <p>Clique no botão abaixo caso queira cadastrar um novo produto</p>
+
+                                  				<div class="buttons">
+    				 <a class="button" href="~/sistema/produtos/cadastro">Cadastrar Novo Produto</a>
+  				</div>
+    				            
+                    	       
+   
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+    			
+  				</div>
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

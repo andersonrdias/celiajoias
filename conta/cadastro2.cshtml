@@ -1,0 +1,142 @@
+﻿@* Remova esta seção se estiver usando agrupamento *@
+@section Scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+}
+
+@{
+    
+
+    // Inicializar variáveis gerais da página
+    var email = "";
+    var password = "";
+    var confirmPassword = "";
+
+    // Configurar validação
+    Validation.RequireField("email", "Você deve especificar um endereço de email.");
+    Validation.RequireField("password", "A senha não pode ficar em branco.");
+    Validation.Add("confirmPassword",
+        Validator.EqualsTo("password", "A senha e a confirmação de senha não correspondem."));
+    Validation.Add("password",
+        Validator.StringLength(
+            maxLength: Int32.MaxValue,
+            minLength: 6,
+            errorMessage: "A senha deve ter pelo menos 6 caracteres"));
+
+    // Se essa for uma solicitação POST, valide e processe os dados
+    if (IsPost) {
+        AntiForgery.Validate();
+        email = Request.Form["email"];
+        password = Request.Form["password"];
+        confirmPassword = Request.Form["confirmPassword"];
+
+        // Valide a resposta captcha do usuário
+        // if (!ReCaptcha.Validate("PRIVATE_KEY")) {
+        //     ModelState.AddError("recaptcha", "A resposta captcha está incorreta");
+        // }
+
+        // Se todas as informações forem válidas, crie uma nova conta
+        if (Validation.IsValid()) {
+            // Insira um novo usuário no banco de dados
+            var db = Database.Open("CeliaJoias");
+
+            // Verifique se o usuário já existe
+            var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
+            if (user == null) {
+                // Insira o email na tabela de perfil
+                db.Execute("INSERT INTO UserProfile (Email) VALUES (@0)", email);
+
+                // Crie e associe uma nova entrada no banco de dados de associação.
+                // Caso tenha êxito, continue processando a solicitação
+                try {
+                    bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
+                    var token = WebSecurity.CreateAccount(email, password, requireEmailConfirmation);
+                    if (requireEmailConfirmation) {
+                        var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                        var confirmationUrl = hostUrl + VirtualPathUtility.ToAbsolute("~/conta/confirmacao?confirmationCode=" + HttpUtility.UrlEncode(token));
+
+
+
+var Corpo = "<div id=':161' class='ii gt m1428df759e46ffb1 adP adO' style='font-size: 13px; direction: ltr; margin: 5px 15px 0px 0px; padding-bottom: 5px; position: relative; z-index: 0; text-align: justify;'> 	<div id=':160' style='overflow: hidden;'> 		<table style='width: 520px; margin-left: auto; margin-right: auto; border: 1px solid #e4e2e2;'> 			<tbody> 				<tr> 					<td style='font-family: arial, sans-serif; margin: 0px;'><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif' style='color: #333333; font-family: Tahoma, Helvetica, Arial, sans-serif;'><span style='font-size: 12px; line-height: 15.796875px;'><img src='http://www.celiajoias.com/image/logo.png' /></span></span> 					</td> 				</tr> 				<tr> 					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #f6f3f3;'> 						<table> 							<tbody> 								<tr> 									<td> 										<p>&nbsp;</p> 										<p>Prezado(a) Anderson Rodrigues Dias,</p> 										<div> 											<p>Obrigado&nbsp;por&nbsp;cadastrar-se&nbsp;em nosso site!</p> 											<p>&nbsp;Você precisa seguir para o endereço abaixo, para completar&nbsp;o processo de registro (basta clicar no link abaixo ou copiá-lo&nbsp;&nbsp;e colá-lo em seu navegador):</p> 										</div> 										<div>&nbsp;</div> 									</td> 								</tr> 							</tbody> 						</table> 					</td> 				</tr> 				<tr> 					<td><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif'></span> 						<table align='center'> 							<tbody> 								<tr> 									<td> 										<p style='text-align: left;'>&nbsp;</p> 										<p style='text-align: left;'><a href='http://www.classificados.com.br/index.php?page=reg&amp;code=e25be9&amp;hw_pay_plan=SUB_FREE'>http://www.classificados.com.br/index.php?page=reg&amp;code=e25be9&amp;hw_pay_plan=SUB_FREE</a> 										</p> 										<p style='text-align: left;'>Caso o link não seja aberto corretamente, veja&nbsp;se&nbsp;ele está&nbsp;quebrado.&nbsp;Se&nbsp;houver algum espaço em branco no link, copie todo&nbsp;&nbsp;ele, remova o espaço em branco para restaurar o link e cole-o&nbsp;em seu avegador para abrir a página que fará a confirmação do&nbsp;e-mail.</p> 									</td> 								</tr> 							</tbody> 						</table><span color='#333333' face='Tahoma, Helvetica, Arial, sans-serif'><br /></span> 					</td> 				</tr> 				<tr> 					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #f6f3f3;'> 						<p>&nbsp;</p>Se&nbsp;você tiver algum problema ou precisar de assistência,&nbsp;&nbsp;escreva para&nbsp;&nbsp;<a href='mailto:contato@celiajoias.com'>contato@celiajoias.com</a><a href='mailto:contato@celiajoias.com.'>.</a> 						<p>&nbsp;</p> 					</td> 				</tr> 				<tr> 					<td style='font-family: arial, sans-serif; margin: 0px; background-color: #604261;'> 						<table align='center' style='width: 500px;'> 							<tbody> 								<tr> 									<td style='font-family: arial, sans-serif; margin: 0px;'> 										<p style='color: #222222; font-size: 13px; text-align: right;'><span style='color: #ffffff; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 1.3em;'>Atenciosamente,</span> 										</p> 										<p style='color: #222222; font-size: 13px; text-align: right;'><span style='color: #ffffff;'>Célia Jóias.com</span><br /><span style='color: #ffff00;'><a href='http://www.celiajoias.com/' target='_blank' style='color: #1155cc;'>www.CeliaJoias.com</a></span> 										</p> 									</td> 								</tr> 							</tbody> 						</table> 					</td> 				</tr> 			</tbody> 		</table> 	</div> </div> <p>&nbsp;</p>";
+
+
+
+
+
+                        WebMail.Send(
+                            to: email,
+                            subject: "Confirme sua conta",
+                            body: "Seu código de confirmação é: " + token + ". Visit <a href=\"" + confirmationUrl + "\">" + confirmationUrl + "</a> para ativar sua conta."
+                        );
+                    }
+
+                    if (requireEmailConfirmation) {
+                        // Agradeça ao usuário por se registrar e informe que um email será enviado
+                        Response.Redirect("~/conta/conclusao");
+                    } else {
+                        // Volte para a página inicial e saia
+                        WebSecurity.Login(email, password);
+
+                        Response.Redirect("~/");
+                    }
+                } catch (System.Web.Security.MembershipCreateUserException e) {
+                    ModelState.AddFormError(e.Message);
+                }
+            } else {
+                // O usuário já existe
+                ModelState.AddFormError("Email address is already in use.");
+            }
+        }
+    }
+}
+
+<hgroup class="title">
+    <h1>@Page.Title.</h1>
+    <h2>Criar uma nova conta.</h2>
+</hgroup>
+
+<form method="post">
+    @AntiForgery.GetHtml()
+    @* Se houver pelo menos um erro de validação, notifique o usuário *@
+    @Html.ValidationSummary("A criação da conta não foi bem-sucedida. Corrija os erros e tente novamente.", excludeFieldErrors: true, htmlAttributes: null)
+
+    <fieldset>
+        <legend>Formulário de registro</legend>
+        <ol>
+            <li class="email">
+                <label for="email" @if(!ModelState.IsValidField("email")){<text>class="error-label"</text>}>Endereço de email</label>
+                <input type="text" id="email" name="email" value="@email" @Validation.For("email") />
+                @* Grave todos os erros de validação de email na página *@
+                @Html.ValidationMessage("email")
+            </li>
+            <li class="password">
+                <label for="password" @if(!ModelState.IsValidField("password")) {<text>class="error-label"</text>}>Senha</label>
+                <input type="password" id="password" name="password" @Validation.For("password") />
+                @* Grave todos os erros de validação de senha na página *@
+                @Html.ValidationMessage("password")
+            </li>
+            <li class="confirm-password">
+                <label for="confirmPassword" @if(!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Confirmar senha</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") />
+                @* Grave todos os erros de validação de senha na página *@
+                @Html.ValidationMessage("confirmPassword")
+            </li>
+            <li class="recaptcha">
+                <div class="message-info">
+                    <p>
+                        Para ativar a verificação CAPTCHA, <a href="http://go.microsoft.com/fwlink/?LinkId=204140">instale a 
+                        ASP.NET Web Helpers Library</a> e exclua comentários ReCaptcha.GetHtml e substitua a 'PUBLIC_KEY'
+                        por sua chave pública. Na parte superior desta página, exclua os comentários de ReCaptcha. Validate e
+                        substitua a 'PRIVATE_KEY' por sua chave privada.
+                        Inscreva-se para chaves de reCAPTCHA em <a href="http://recaptcha.net">reCAPTCHA.net</a>.
+                    </p>
+                </div>
+                @*
+                @ReCaptcha.GetHtml("PUBLIC_KEY", theme: "white")
+                @Html.ValidationMessage("recaptcha")
+                *@
+            </li>
+        </ol>
+        <input type="submit" value="Registrar" />
+    </fieldset>
+</form>

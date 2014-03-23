@@ -1,0 +1,159 @@
+﻿@{
+    
+
+var produtoID = !UrlData[0].IsEmpty() ? UrlData[0] : "0";
+var db = Database.Open("CeliaJoias");
+var sqlSelect = "SELECT * FROM Produtos WHERE CodProduto = @0";
+var produto = db.QuerySingle(sqlSelect, produtoID);
+
+if (produto == null)
+{
+  Response.Redirect("/sistema/produtos/");   
+}
+
+
+
+if( IsPost && !produtoID.IsEmpty()) 
+  {
+    var deleteQueryString = "DELETE FROM Produtos WHERE CodProduto=@0";
+    db.Execute(deleteQueryString, produtoID);
+    Response.Redirect("~/sistema/produtos/excluido");
+  }
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Excluir Produto</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/sistema/produtos/">Relação de Produtos</a> » 
+            <a href="">Excluir Produto</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+          @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+
+ 
+
+                
+  				<h1>Confirmar Exclusão ( @produto.Titulo )</h1>
+    	
+
+
+                        <div class="checkout-content" style="display:block;">
+                            <div class="left">
+                            
+                      	<div class="description">                            
+                                <b>Nome:</b><br><h2> @produto.Titulo </h2> 
+                                 <b>Cód. Refência:</b> <br> <h2>@produto.CodReferencia</h2> 
+                                 <b>Descrição:</b><br> <h2>@produto.Descricao</h2> 
+                                 <b>Categoria:</b><br> <h2>@FuncaoProdutos.Produto_Categoria(produto.CodProduto)</h2>
+                                 
+                            </div>
+
+
+                               
+
+
+
+
+
+                            </div>
+                            <div class="right">
+<form method="post" action="" name="form">
+
+
+
+
+
+                                <h2>Aviso!</h2><br>
+                                <p>Clique no botão abaixo caso queira confirmar a exclusão do produto</p>
+
+                                  				<div class="buttons">
+<input type="submit" class="button" id="button-confirm" value="Excluir Definitivamente">
+  				</div>
+    				            
+                    	   </form>    
+   
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+    			
+  				
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

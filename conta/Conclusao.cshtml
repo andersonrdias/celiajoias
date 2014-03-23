@@ -1,0 +1,151 @@
+﻿@{
+    
+
+
+ 
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Conclusão de Cadastro</title>
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="#">Encerrar Pedido</a>             
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+            <div class="box">
+            	<div class="box-heading">Account</div>
+            	<div class="box-category">
+            		<ul>
+                    	<li><a href="#">My Account</a></li>
+                    	<li><a href="#">Edit Account</a></li>
+              			<li><a href="#">Password</a></li>
+                    	<li><a href="#">Address Books</a></li>
+                        <li><a href="#">Wish List</a></li>
+                        <li><a href="#">Order History</a></li>
+                        <li><a href="#">Downloads</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Transactions</a></li>
+                        <li><a href="#">Newsletter</a></li>
+                    	<li><a href="#">Logout</a></li>
+                  	</ul>
+            	</div>
+            </div>
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+
+
+ <script type="text/javascript">
+<!--
+ var numero = 20;
+ function chamar(){if(numero>0){document.getElementById('timers').innerHTML = --numero +' segundos';}}
+setInterval("chamar();", 1000);
+setTimeout("document.location = '/';",20000);
+//-->
+</script>
+
+
+                
+  				<h1>Cadastro Concluído</h1>
+    			<div class="wishlist-info">
+@if (WebSecurity.IsAuthenticated) {
+
+                <p>Muito obrigado por se cadastrar em nosso site.</p>
+               
+} else {
+    
+                <p>Muito obrigado por se cadastrar em nosso site. Um email de confirmação foi enviado para o seu email.</p>
+                <p>Favor validar o seu email para concluir o seu cadastro conosco.</p>
+}
+<br></br>
+                        <div class="checkout-content" style="display:block;">
+                            <div class="left">
+                                <h2>Redirecionamento</h2><br>
+                                <p>Você será redirecionado para a página incial do site em poucos instantes:</p>
+   
+                        <h2>     <div id="timers">10 segundos</div>   </h2>
+    
+
+                            </div>
+                            <div class="right">
+                    	       
+   
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+    			
+  				</div>
+  				
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+<script type="text/javascript" src="~/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+<!-- JS Part End-->
+
+</body>
+</html>

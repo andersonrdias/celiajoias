@@ -1,0 +1,233 @@
+﻿@{
+    
+
+
+var db = Database.Open("CeliaJoias");
+//var selectQueryStringProdutos = "select * from Produtos where Ativo = 'true' order by Titulo";
+
+
+//var produtos = db.Query(selectQueryStringProdutos);
+//------------------------------------------------------------------------------------------
+
+
+  var exibirPedidosEnviados = false;
+  if(IsPost)
+  {
+    exibirPedidosEnviados = Request["exibirPedidosEnviados"].AsBool();
+  }
+
+  var sqlCommand = "SELECT Pedidos.CodPedido, Pedidos.pedidoEnviado, Pedidos.pedidoTotal, " +
+                             "Pedidos.pedidoDataHora, UserProfile.Email FROM Pedidos " +
+                            "INNER JOIN UserProfile ON Pedidos.CodUsuario = UserProfile.UserId " +
+                            "WHERE pedidoEnviado = @0 " +
+                            "ORDER BY pedidoDataHora DESC";
+  var resultado = db.Query(sqlCommand, exibirPedidosEnviados);
+  var pedidosGrid = new WebGrid(source: resultado, rowsPerPage: 20);
+
+
+
+
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Célia Jóias - Vendas & Pedidos</title>
+
+
+
+
+<style type="text/css" title="currentStyle">
+			
+</style>
+
+
+
+
+
+		
+<script type="text/javascript" language="javascript" src="~/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="~/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function() {
+	$('#TabProdutos').dataTable();
+} );
+</script>
+
+
+
+
+
+<meta name="HandheldFriendly" content="True" />
+<meta name="MobileOptimized" content="320" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Célia Jóias" />
+
+<!-- CSS Part Start-->
+<link href="~/image/favicon.png" rel="icon" />
+<link rel="stylesheet" class="theme" type="text/css" href="~/css/stylesheet-4.css" />
+<!-- CSS Part End-->
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+@RenderPage("~/Shared/Layout/_Top.cshtml")
+
+<div id="wrapper">
+
+    <!-- Header Part Start-->
+ @RenderPage("~/Shared/Layout/_Header.cshtml")
+  	<!-- Header Part End-->
+      	
+    <!--Middle Part Start--> 
+  	<div id="container">
+    	<!--Breadcrumb Start-->
+		<div class="breadcrumb">
+        	<a href="~/">Página Inicial</a> » 
+            <a href="~/sistema/">Administração</a> » 
+            <a href="~/">Pedidos</a>
+      	</div>
+        <!--Breadcrumb End-->
+        
+ 		<!--Left Part Start-->
+        <aside id="column-left">
+     @RenderPage("~/Shared/Layout/Parte/_MenuAdministracao.cshtml")
+  		</aside>
+        <!--Left Part End-->
+        
+        <section id="mainContent">
+			<div id="content">  
+            	<!--Social Icons Start--> 
+                <div class="social">
+                    <ul>
+                        <li><a class="ico-fb" onclick="window.open('http://www.facebook.com/');" title="Follow Your Store on Facebook"> &nbsp; </a> </li>
+                        <li><a class="ico-twit" onclick="window.open('http://twitter.com/');" title="Follow Your Store on Twitter"> &nbsp; </a> </li>
+                        <li><a class="ico-google" onclick="window.open('https://plus.google.com/');" title="Follow Your Store on Google+"> &nbsp; </a> </li>
+                    </ul>
+                </div>
+            	<!--Social Icons End-->
+  			
+
+                
+  				<h1>Relação de Pedidos @if(exibirPedidosEnviados){<text>Enviados</text>}else{<text>Não Enviados</text>}</h1>
+
+
+                 <form action="" method="post">
+  <p>
+     @Html.RadioButton("exibirPedidosEnviados", "false", !exibirPedidosEnviados)Pedidos não Enviados
+      <br>
+     @Html.RadioButton("exibirPedidosEnviados", "true", exibirPedidosEnviados)Pedidos Enviados
+      <br><br>
+        <input type="submit" class="button" id="button-confirm" value="Visualizar">
+ </p>
+</form>
+
+
+
+
+
+    			<div class="wishlist-info">
+    				<table id="TabProdutos">
+                    	<thead>
+                            <tr>
+                              <td class="image">Image</td>
+                              <td class="name">Cliente</td>
+                              <td class="model">N.º Pedido</td>
+                              <td class="stock">Data</td>
+                              <td class="price">Valor</td>
+                              <td class="price"></td>
+                            </tr>
+      					</thead>
+            			<tbody id="wishlist-row43">
+                              @foreach (var item in resultado) {
+        					<tr>
+          						<td class="image">            
+                                	@if(item.pedidoEnviado)
+                                 {<text> <a href="~/sistema/pedidos/detalhe/@item.CodPedido"><img title="" alt="" src="/image/pedidoOk.png"></a> </text>} 
+                                 else
+                                 {<text> <a href="~/sistema/pedidos/detalhe/@item.CodPedido"><img title="" alt="" src="/image/pedido.png"></a> </text>}
+                                      
+                                
+                                  </td>
+                              	<td class="name">
+                                	<a href="">@item.Email</a>
+                               	</td>
+                              	<td class="model">@String.Format("{0:0000000}", item.CodPedido)</td>
+                              	<td class="stock">@item.pedidoDataHora</td>
+                              	<td class="price">            
+                                	<div class="price">@String.Format("{0:C}", item.PedidoTotal)</div>
+                                </td>
+
+                                <td>
+                                
+    				
+                    	<label class="btn"><a class="button" href="~/sistema/pedidos/detalhe/@item.CodPedido">Detalhes</a></label>
+                 
+  			
+                                </td>
+                            </tr>
+                            }
+                      	</tbody>
+          			</table>
+  				</div>
+
+
+
+<!--------------teste inicio -->
+
+                
+<!---------------teste final-->
+    		
+
+
+
+<!-------------fim tabela-->
+
+
+
+
+
+
+
+
+
+
+
+    		</div>
+  		</section>
+          
+	</div>
+  	<!--Middle Part End--> 
+    
+  	<!--Footer Part Start-->
+	 @RenderPage("~/Shared/Layout/_Footer.cshtml")
+    <!--Footer Part End-->
+  	
+</div>
+
+<!-- JS Part Start-->
+
+
+<script type="text/javascript" src="~/js/html5.js"></script>
+<script type="text/javascript" src="~/js/custom.js"></script>
+
+
+<!-- JS Part End-->
+
+
+ 
+
+
+
+
+</body>
+</html>
